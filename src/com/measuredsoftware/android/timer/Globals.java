@@ -19,6 +19,9 @@ public class Globals
 
     /** our time format */
     public static final String TIME_FORMAT = "%H:%M:%S";
+
+    /** standard logging tag */
+    public static final String TAG = "MT";
     
     private static int tintColour = 0;
     

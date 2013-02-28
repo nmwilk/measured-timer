@@ -30,15 +30,22 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/timer_margin"
-            android:src="@drawable/dial_spinner"
-            android:background="@drawable/dial_main" />
+            android:background="@drawable/dial_main"
+            android:src="@drawable/dial_spinner" />
 
-        <com.measuredsoftware.android.timer.views.TimersList
+        <com.measuredsoftware.android.timer.views.ContainerFrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/timer"
             android:layout_marginBottom="@dimen/timers_list_margin"
-            android:layout_marginTop="@dimen/timers_list_margin" />
+            android:layout_marginTop="@dimen/timers_list_margin" >
+
+            <com.measuredsoftware.android.timer.views.TimersList
+                android:id="@+id/timer_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical" />
+        </com.measuredsoftware.android.timer.views.ContainerFrameLayout>
     </RelativeLayout>
 
 </RelativeLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.measuredsoftware.android.timer.views.TimerTextView
+        android:id="@+id/target_time"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/target_text_size"
+        app:textType="target"
+        android:layout_centerVertical="true"/>
+
+    <com.measuredsoftware.android.timer.views.TimerTextView
+        android:id="@+id/countdown_time"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/countdown_text_size"
+        app:textType="countdown"
+        android:layout_centerInParent="true"/>
+
+    <com.measuredsoftware.android.timer.views.CancelButton
+        android:id="@+id/cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/cancel_button_padding"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"/>
+    
+</merge>

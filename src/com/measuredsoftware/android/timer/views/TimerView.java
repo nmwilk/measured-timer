@@ -13,6 +13,7 @@ import com.measuredsoftware.android.library2.utils.MathTools;
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.RotatableImageView;
+import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
 
 /**
  * The rotatable view that starts a timer.
@@ -44,9 +45,6 @@ public class TimerView extends RotatableImageView
     }
 
     protected static final float mMaxTotalAngle = (360 * 72) - 1;
-
-    private static final int TEXT_COLOUR_DEFAULT_COUNTDOWN = 0xFFFFFFFF;
-    private static final int TEXT_COLOUR_DEFAULT_ENDTIME = 0xFFFFFFFF;
 
     protected OnEventListener mListener;
     protected int mCurrentTimeSecs;
@@ -347,23 +345,8 @@ public class TimerView extends RotatableImageView
 
     private void createPaints()
     {
-        final float textSizeCountdown = Math.round((float) getWidth() / 9f);
-        final float textSizeTarget = Math.round((float) getWidth() / 11f);
-
-        mTextPaintCountdown = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaintCountdown.setTypeface(Globals.getFont());
-        mTextPaintCountdown.setTextSize(textSizeCountdown);
-        mTextPaintCountdown.setTextAlign(Align.CENTER);
-        mTextPaintCountdown.setColor(TEXT_COLOUR_DEFAULT_COUNTDOWN);
-        mTextPaintCountdown.setShadowLayer(textSizeCountdown / 18f, 0, textSizeCountdown / 20f, 0x7F000000);
-
-        mTextPaintTarget = new Paint();
-        mTextPaintTarget.setTypeface(Globals.getFont());
-        mTextPaintTarget.setTextSize(textSizeTarget);
-        mTextPaintTarget.setColor(TEXT_COLOUR_DEFAULT_ENDTIME);
-        mTextPaintTarget.setAntiAlias(true);
-        mTextPaintTarget.setTextAlign(Align.CENTER);
-        mTextPaintTarget.setShadowLayer(textSizeTarget / 18f, 0, textSizeTarget / 20f, 0x7F000000);
+        mTextPaintCountdown = TimerTextView.stylePaint(TextType.COUNTDOWN, getWidth());
+        mTextPaintTarget = TimerTextView.stylePaint(TextType.TARGET, getWidth());
     }
 
     private void setSecsRemaining(int secs)
