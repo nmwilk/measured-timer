@@ -11,6 +11,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -66,7 +67,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private static String deviceId;
     private static String deviceModel;
-    private static String deviceOsVersion;
+    private static int deviceOsVersion;
 
     private static final String PREFS_VAL_SENDSTATS = "sendstats";
     private static final String PREFS_VAL_USE_NOTIFICATIONS = "usenotifications";
@@ -198,7 +199,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
         deviceModel = Build.MODEL.toLowerCase();
-        deviceOsVersion = Build.VERSION.SDK;
+        deviceOsVersion = Build.VERSION.SDK_INT;
 
         notificationTitle = getString(R.string.notification_title);
         notificationExTitle = getString(R.string.notification_extitle);
@@ -231,7 +232,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         // mPrefs = getSharedPreferences(PREFS_LOC, MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        
+
         readEndTimesMS();
 
         // stats
@@ -385,11 +386,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         this.fadeInBackground();
         if (millisecs > 0)
         {
-            final Long endTime = Long.valueOf(Globals.getTime() + (millisecs * 1000)); 
+            final Long endTime = Long.valueOf(Globals.getTime() + (millisecs * 1000));
             endTimes.addEndTime(endTime);
             setupAlarm(endTime);
             ++usageCount;
-            
+
             final int timerLenSecs = (int) (endTime - Globals.getTime()) / 1000;
             avTimeLen = ((avTimeLen + timerLenSecs) / usageCount);
             final SharedPreferences.Editor editor = prefs.edit();
@@ -403,7 +404,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             Alarms.disableAlert(this);
             removeNotificationItem();
         }
-        
+
         writeEndTimesToPrefs();
     }
 
@@ -413,7 +414,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         firstChange = true;
         writeEndTimesToPrefs();
     }
-    
+
     private void stopAlarmRinging()
     {
         removeNotificationItem();
@@ -436,8 +437,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         if (!this.showNotification) return false;
 
         final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        final Notification notify = new Notification(R.drawable.statusicon, notificationTitle,
-                Globals.getTime());
+        final Notification notify = new Notification(R.drawable.statusicon, notificationTitle, Globals.getTime());
         final Intent intent = new Intent(this, TimerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -458,7 +458,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         writeToPrefs(PREFS_VAL_ENDTIMES, endTimes.toString());
     }
-    
+
     private void readEndTimesMS()
     {
         endTimes.load(prefs.getString(PREFS_VAL_ENDTIMES, ""));
@@ -477,7 +477,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         editor.putLong(pref, value);
         editor.commit();
     }
-    
+
     private void writeToPrefs(final String pref, final String value)
     {
         final SharedPreferences.Editor editor = prefs.edit();
@@ -536,7 +536,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             public void run()
             {
                 final long start = Globals.getTime();
-                
+
                 NetworkInfo.State netState = NetTools.getConnectivityState(TimerActivity.this);
 
                 // wait for connected
@@ -566,8 +566,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 }
 
                 // CONNECTED
-                int r = postDeviceDetails(deviceId, deviceModel, deviceOsVersion, installDate, appVersion,
-                        usageCount, avTimeLen, clickedMMSCount);
+                final int r = postDeviceDetails(deviceId, deviceModel, deviceOsVersion, installDate, appVersion, usageCount,
+                        avTimeLen, clickedMMSCount);
 
                 {
                     final Message msg = new Message();
@@ -584,30 +584,31 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private static final int ERROR_NET_UNKNOWN = 1;
     private static final int ERROR_NET_NO_ROUTE = 2;
 
-    protected static int postDeviceDetails(String deviceId, String modelID, String osVersion, String installDate,
-            int versionCode, int usageCount, int avTimeLen, int clickedMMSCount)
+    protected static int postDeviceDetails(final String deviceId, final String modelID, final int osVersion,
+            final String installDate, final int versionCode, final int usageCount, final int avTimeLen,
+            final int clickedMMSCount)
     {
         int res = 0;
 
         int caughtError = -1;
 
         // create the list containing the vars
-        List<NameValuePair> vars = new ArrayList<NameValuePair>(6);
+        final List<NameValuePair> vars = new ArrayList<NameValuePair>(6);
         vars.add(new BasicNameValuePair("deviceid", deviceId));
         vars.add(new BasicNameValuePair("modelid", modelID));
-        vars.add(new BasicNameValuePair("osv", osVersion));
+        vars.add(new BasicNameValuePair("osv", String.valueOf(osVersion)));
         vars.add(new BasicNameValuePair("id", installDate));
-        vars.add(new BasicNameValuePair("uc", "" + usageCount));
-        vars.add(new BasicNameValuePair("atl", "" + avTimeLen));
-        vars.add(new BasicNameValuePair("cmmsc", "" + clickedMMSCount));
-        vars.add(new BasicNameValuePair("v", "" + versionCode));
+        vars.add(new BasicNameValuePair("uc", String.valueOf(usageCount)));
+        vars.add(new BasicNameValuePair("atl", String.valueOf(avTimeLen)));
+        vars.add(new BasicNameValuePair("cmmsc", String.valueOf(clickedMMSCount)));
+        vars.add(new BasicNameValuePair("v", String.valueOf(versionCode)));
 
         try
         {
-            HttpResponse resp = HttpTools.doPost(STATS_URL, vars);
+            final HttpResponse resp = HttpTools.doPost(STATS_URL, vars);
             if (resp != null)
             {
-                int httpCode = resp.getStatusLine().getStatusCode();
+                final int httpCode = resp.getStatusLine().getStatusCode();
 
                 if (httpCode == HttpURLConnection.HTTP_OK)
                 {
@@ -621,11 +622,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 }
             }
         }
-        catch (ClientProtocolException e)
+        catch (final ClientProtocolException e)
         {
             e.printStackTrace();
         }
-        catch (IOException e)
+        catch (final IOException e)
         {
             e.printStackTrace();
             caughtError = ERROR_NET_NO_ROUTE;
@@ -661,7 +662,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 {
                     sleep(200);
                 }
-                catch (InterruptedException e)
+                catch (final InterruptedException e)
                 {
                     e.printStackTrace();
                 }
