@@ -164,8 +164,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private boolean threadRun;
 
-    private static int piRequestCode = 0;
-
     private static int appVersion;
 
     /** Called when the activity is first created. */
