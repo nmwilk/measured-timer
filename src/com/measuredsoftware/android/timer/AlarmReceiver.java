@@ -17,11 +17,11 @@ public class AlarmReceiver extends BroadcastReceiver
 
         AlarmAlertWakeLock.acquireCpuWakeLock(context);
 
-        Intent closeDialogs = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        final Intent closeDialogs = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         context.sendBroadcast(closeDialogs);
 
         boolean asleep = false;
-        KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        final KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         if (km.inKeyguardRestrictedInputMode())
         {
             asleep = true;
@@ -34,7 +34,7 @@ public class AlarmReceiver extends BroadcastReceiver
         alarmAlert.putExtra(TimerActivity.INTENT_VAR_DEVICE_ASLEEP, asleep);
         context.startActivity(alarmAlert);
 
-        Intent playAlarm = new Intent(Alarms.ALARM_ALERT_ACTION);
+        final Intent playAlarm = new Intent(Alarms.ALARM_ALERT_ACTION);
         context.startService(playAlarm);
     }
 }

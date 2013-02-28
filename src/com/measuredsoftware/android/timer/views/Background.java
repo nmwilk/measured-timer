@@ -16,8 +16,7 @@ import com.measuredsoftware.android.timer.R;
  */
 public class Background extends ImageView
 {
-    private final Drawable dropShadow;
-    private boolean shadowSized = false;
+    private Drawable dropShadow;
     
     /**
      * @param context
@@ -27,7 +26,6 @@ public class Background extends ImageView
     {
         super(context, attrs);
         
-        dropShadow = context.getResources().getDrawable(R.drawable.drop_shadow);
     }
     
     @Override
@@ -35,8 +33,9 @@ public class Background extends ImageView
     {
         super.onDraw(canvas);
         
-        if (!shadowSized) 
+        if (dropShadow == null) 
         {
+            dropShadow = getResources().getDrawable(R.drawable.drop_shadow);
             dropShadow.setBounds(0, 0, getWidth(), dropShadow.getIntrinsicHeight());
         }
         

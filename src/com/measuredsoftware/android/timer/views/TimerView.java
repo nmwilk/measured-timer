@@ -1,30 +1,24 @@
 package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import com.measuredsoftware.android.library2.utils.ImageTools;
 import com.measuredsoftware.android.library2.utils.MathTools;
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.RotatableImageView;
-import com.measuredsoftware.android.timer.TimerActivity;
-import com.measuredsoftware.android.timer.R.drawable;
 
 /**
  * The rotatable view that starts a timer.
  * 
  * @author neil
- *
+ * 
  */
 public class TimerView extends RotatableImageView
 {
@@ -33,21 +27,26 @@ public class TimerView extends RotatableImageView
     {
         /**
          * rotation started
+         * 
          * @param millisecs
          */
         void started(int millisecs);
-        
+
         /**
          * more rotation occurred
-         * @param millisecs 
+         * 
+         * @param millisecs
          */
         void valueChanged(int millisecs);
-        
+
         /** called when started called by no value changed. */
         void cancelled();
     }
 
     protected static final float mMaxTotalAngle = (360 * 72) - 1;
+
+    private static final int TEXT_COLOUR_DEFAULT_COUNTDOWN = 0xFFFFFFFF;
+    private static final int TEXT_COLOUR_DEFAULT_ENDTIME = 0xFFFFFFFF;
 
     protected OnEventListener mListener;
     protected int mCurrentTimeSecs;
@@ -61,11 +60,8 @@ public class TimerView extends RotatableImageView
     private float mPrevAngle;
     private float mTotalAngle; // includes if we've looped around
 
-    private Paint mTextLargeOrange;
-    private Paint mTextSmallMGray;
-    private Paint mTextSmallWhite;
-    private Paint mTextLarge;
-    private Paint mTextSmall;
+    private Paint mTextPaintCountdown;
+    private Paint mTextPaintTarget;
 
     private String msCountdownTime;
     private String msEndTime;
@@ -77,18 +73,24 @@ public class TimerView extends RotatableImageView
 
     private boolean mAlarmRinging;
 
-    private final int TIMER_POS_X;
-    private final int TIMER_POS_Y;
-    private final int ENDTIME_POS_X;
-    private final int ENDTIME_POS_Y;
+    private int countdownTimePosX;
+    private int countdownTimePosY;
+    private int endtimePosX;
+    private int endtimePosY;
 
+    private Drawable innerRing;
+
+    /**
+     * @param context
+     * @param attrs
+     */
     public TimerView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
 
         mListener = null;
 
-        super.setIncrement(6);
+        super.setIncrement(1);
 
         mEndTimeMS = 0;
         mSecsLeftPrev = -1;
@@ -98,58 +100,40 @@ public class TimerView extends RotatableImageView
 
         final Drawable back = this.getBackground();
         if (back == null) throw new RuntimeException("Must supply a background to TimerView.");
-        
-        Rect dialSize = new Rect(0, 0, back.getIntrinsicWidth(), back.getIntrinsicHeight());
-
-        mTextLargeOrange = new Paint();
-        mTextLargeOrange.setTypeface(Globals.getFont());
-        mTextLargeOrange.setTextSize(Math.round(dialSize.right / 9.1666667));
-        mTextLargeOrange.setAntiAlias(true);
-        mTextLargeOrange.setTextAlign(Align.CENTER);
-        // mTextLargeOrange.setColor(TimerActivity.N_COLOUR_ORANGE);
-
-        mTextSmallMGray = new Paint();
-        mTextSmallMGray.setTypeface(Globals.getFont());
-        mTextSmallMGray.setTextSize(Math.round(dialSize.right / 12.941));
-        mTextSmallMGray.setAntiAlias(true);
-        mTextSmallMGray.setTextAlign(Align.CENTER);
-        // mTextSmallMGray.setColor(TimerActivity.N_COLOUR_DGREY);
-
-        mTextSmallWhite = new Paint();
-        mTextSmallWhite.setTypeface(Globals.getFont());
-        mTextSmallWhite.setTextSize(Math.round(dialSize.right / 12.941));
-        mTextSmallWhite.setAntiAlias(true);
-        mTextSmallWhite.setTextAlign(Align.CENTER);
-        // mTextSmallWhite.setColor(TimerActivity.N_COLOUR_ENDTIME_ACTIVE);
-
-        mTextLarge = this.mTextLargeOrange;
-        mTextSmall = this.mTextSmallMGray;
-
-        TIMER_POS_X = (dialSize.right / 2);
-        TIMER_POS_Y = (dialSize.bottom / 2);
-        ENDTIME_POS_X = (dialSize.right / 2);
-        ENDTIME_POS_Y = (dialSize.bottom / 2) + (dialSize.bottom / 10);
 
         mTimeLeft = new Time();
         mEndTime = new Time();
 
         mCountdownActive = false;
 
-        // Set our bitmaps to 16-bit, 565 format.
-        BitmapFactory.Options sBitmapOptions = new BitmapFactory.Options();
-        sBitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
-
-        int maskId = R.drawable.dial_mask_320;
-        if (dialSize.right > 320) maskId = R.drawable.dial_mask_480;
-
-        super.setIgnoreMask(ImageTools.loadBitmap(context, maskId, sBitmapOptions), true);
-
         setDigitalTimeTo(0);
     }
 
-    public void setOnSetValueChangedListener(OnEventListener l)
+    /**
+     * @param listener
+     *            The listener for the events this generates.
+     */
+    public void setOnSetValueChangedListener(final OnEventListener listener)
     {
-        mListener = l;
+        mListener = listener;
+    }
+
+    /**
+     * @param colour
+     *            ARGB int
+     */
+    public void setTextColourCountdown(final int colour)
+    {
+        mTextPaintCountdown.setColor(colour);
+    }
+
+    /**
+     * @param colour
+     *            ARGB int
+     */
+    public void setTextColourTarget(final int colour)
+    {
+        mTextPaintTarget.setColor(colour);
     }
 
     @Override
@@ -158,19 +142,17 @@ public class TimerView extends RotatableImageView
         // don't allow moving of timer if ringing
         if (mAlarmRinging) return true;
 
-        boolean b = super.onTouchEvent(event);
+        final boolean b = super.onTouchEvent(event);
         // parent handled it?
         if (b) return true;
 
         int msgRes = -1;
-        
         int msgValue = -1;
 
         final int action = event.getAction();
         switch (action)
         {
             case MotionEvent.ACTION_DOWN:
-                // mCurrentTimeSecs = 0;
                 mCurrentTimeSecs = convertAngleToSecs(mTotalAngle);
                 msgRes = 2;
                 setCountdownActive(false);
@@ -204,12 +186,18 @@ public class TimerView extends RotatableImageView
                 final float angleDiff;
                 // passed 359->1?
                 if (mPrevAngle > 270 && (mAngle > 0 && mAngle < 90))
+                {
                     angleDiff = (mAngle + 360) - mPrevAngle;
+                }
                 // passed 1>359?
                 else if ((mPrevAngle >= 0 && mPrevAngle < 90) && mAngle > 270)
+                {
                     angleDiff = mAngle - (mPrevAngle + 360);
+                }
                 else
+                {
                     angleDiff = mAngle - mPrevAngle;
+                }
 
                 mTotalAngle += angleDiff;
                 if (mTotalAngle > mMaxTotalAngle)
@@ -235,7 +223,7 @@ public class TimerView extends RotatableImageView
 
         if (mListener != null && msgRes != -1)
         {
-            switch(msgRes)
+            switch (msgRes)
             {
                 case 0:
                     mListener.started(msgValue);
@@ -252,6 +240,9 @@ public class TimerView extends RotatableImageView
         return true;
     }
 
+    /**
+     * @param endTimeMS
+     */
     public void setEndTime(long endTimeMS)
     {
         setCountdownActive(endTimeMS > 0);
@@ -275,7 +266,7 @@ public class TimerView extends RotatableImageView
         updateTime();
     }
 
-    // recalc time and invalidate if changed.
+    /** recalc time and invalidate if changed. */
     public void updateTime()
     {
         if (!mCountdownActive)
@@ -307,23 +298,15 @@ public class TimerView extends RotatableImageView
     private void setCountdownActive(final boolean b)
     {
         mCountdownActive = b;
-        if (b)
-        {
-            setDigitalEndTimeActive();
-        }
-        else
-        {
-            setDigitalEndTimeInactive();
-        }
     }
 
-    protected int convertAngleToSecs(final float angle)
+    protected static int convertAngleToSecs(final float angle)
     {
         final int time = MathTools.roundToNearest((int) (angle * 10), 60);
         return time;
     }
 
-    protected float convertSecsToAngle(final int time)
+    protected static float convertSecsToAngle(final int time)
     {
         return (time / 10);
     }
@@ -333,9 +316,54 @@ public class TimerView extends RotatableImageView
     {
         super.onDraw(canvas);
 
+        initialiseOnFirstDraw();
+
+        innerRing.draw(canvas);
+
         // draw digital times
-        canvas.drawText(msCountdownTime, TIMER_POS_X, TIMER_POS_Y, this.mTextLarge);
-        canvas.drawText(msEndTime, ENDTIME_POS_X, ENDTIME_POS_Y, this.mTextSmall);
+        canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, mTextPaintCountdown);
+        canvas.drawText(msEndTime, endtimePosX, endtimePosY, mTextPaintTarget);
+    }
+
+    private void initialiseOnFirstDraw()
+    {
+        if (innerRing == null)
+        {
+            innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
+
+            final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
+            final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
+
+            innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
+        }
+
+        if (mTextPaintCountdown == null) createPaints();
+
+        countdownTimePosX = getWidth() / 2;
+        countdownTimePosY = getHeight() / 2;
+        endtimePosX = countdownTimePosX;
+        endtimePosY = countdownTimePosY + Math.round(mTextPaintCountdown.getTextSize());
+    }
+
+    private void createPaints()
+    {
+        final float textSizeCountdown = Math.round((float) getWidth() / 9f);
+        final float textSizeTarget = Math.round((float) getWidth() / 11f);
+
+        mTextPaintCountdown = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTextPaintCountdown.setTypeface(Globals.getFont());
+        mTextPaintCountdown.setTextSize(textSizeCountdown);
+        mTextPaintCountdown.setTextAlign(Align.CENTER);
+        mTextPaintCountdown.setColor(TEXT_COLOUR_DEFAULT_COUNTDOWN);
+        mTextPaintCountdown.setShadowLayer(textSizeCountdown / 18f, 0, textSizeCountdown / 20f, 0x7F000000);
+
+        mTextPaintTarget = new Paint();
+        mTextPaintTarget.setTypeface(Globals.getFont());
+        mTextPaintTarget.setTextSize(textSizeTarget);
+        mTextPaintTarget.setColor(TEXT_COLOUR_DEFAULT_ENDTIME);
+        mTextPaintTarget.setAntiAlias(true);
+        mTextPaintTarget.setTextAlign(Align.CENTER);
+        mTextPaintTarget.setShadowLayer(textSizeTarget / 18f, 0, textSizeTarget / 20f, 0x7F000000);
     }
 
     private void setSecsRemaining(int secs)
@@ -394,15 +422,5 @@ public class TimerView extends RotatableImageView
     private void setDigitalEndTime(String format)
     {
         this.msEndTime = format;
-    }
-
-    private void setDigitalEndTimeInactive()
-    {
-        this.mTextSmall = this.mTextSmallMGray;
-    }
-
-    private void setDigitalEndTimeActive()
-    {
-        this.mTextSmall = this.mTextSmallWhite;
     }
 }
