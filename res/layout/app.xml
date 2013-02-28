@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.measuredsoftware.android.timer.views.TopBar
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_height"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/top_bar_back" />
+
+    <!-- everything below the top bar -->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_bar" >
+
+        <com.measuredsoftware.android.timer.views.Background
+            android:id="@+id/back"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/background" />
+
+        <com.measuredsoftware.android.timer.views.TimerView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/timer_margin"
+            android:src="@drawable/dial_spinner"
+            android:background="@drawable/dial_main" />
+
+        <com.measuredsoftware.android.timer.views.TimersList
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/timer"
+            android:layout_marginBottom="@dimen/timers_list_margin"
+            android:layout_marginTop="@dimen/timers_list_margin" />
+    </RelativeLayout>
+
+</RelativeLayout>

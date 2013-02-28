@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <com.measuredsoftware.android.timer.views.TintedImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@null"
+        android:layout_marginLeft="@dimen/top_bar_button_margin"
+        android:src="@drawable/settings_icon" />
+
+    <com.measuredsoftware.android.timer.views.TintedImageButton
+        android:id="@+id/measured_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@null"
+        android:layout_marginRight="@dimen/top_bar_button_margin"
+        android:src="@drawable/mslogo_icon" />
+
+</merge>
