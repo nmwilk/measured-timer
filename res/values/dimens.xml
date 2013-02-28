@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="top_bar_height">45dp</dimen>
+    <dimen name="top_bar_height">55dp</dimen>
     <dimen name="timer_padding">20dp</dimen>
     <dimen name="timers_list_margin">10dp</dimen>
     <dimen name="top_bar_button_margin">10dp</dimen>

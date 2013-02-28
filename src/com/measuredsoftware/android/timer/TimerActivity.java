@@ -41,6 +41,7 @@ import com.measuredsoftware.android.library2.utils.DateTools;
 import com.measuredsoftware.android.library2.utils.NetTools;
 import com.measuredsoftware.android.library2.utils.http.HttpTools;
 import com.measuredsoftware.android.timer.views.TimerView;
+import com.measuredsoftware.android.timer.views.TopBar;
 
 /**
  * Main activity for app.
@@ -220,6 +221,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         mDial = (TimerView) findViewById(R.id.timer);
         mDial.setOnSetValueChangedListener(this);
+        
+        final TopBar topBar = (TopBar)findViewById(R.id.top_bar);
+        topBar.setOnClickListener(this);
 
         mTickThread = null;
 

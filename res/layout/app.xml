@@ -15,12 +15,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_bar" >
+        android:layout_below="@id/top_bar"
+        android:background="#000" >
 
         <com.measuredsoftware.android.timer.views.Background
             android:id="@+id/back"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scaleType="fitXY"
             android:src="@drawable/background" />
 
         <com.measuredsoftware.android.timer.views.TimerView

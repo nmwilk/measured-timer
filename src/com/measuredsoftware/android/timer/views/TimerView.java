@@ -3,12 +3,13 @@ package com.measuredsoftware.android.timer.views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.measuredsoftware.android.library2.utils.CoordTools;
 import com.measuredsoftware.android.library2.utils.MathTools;
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
@@ -76,6 +77,8 @@ public class TimerView extends RotatableImageView
     private int endtimePosX;
     private int endtimePosY;
 
+    private final Drawable touchGlow;
+    private final Drawable touchArrow;
     private Drawable innerRing;
 
     /**
@@ -105,6 +108,9 @@ public class TimerView extends RotatableImageView
         mCountdownActive = false;
 
         setDigitalTimeTo(0);
+
+        touchGlow = getResources().getDrawable(R.drawable.touch_glow);
+        touchArrow = getResources().getDrawable(R.drawable.touch_arrow);
     }
 
     /**
@@ -309,6 +315,8 @@ public class TimerView extends RotatableImageView
         return (time / 10);
     }
 
+    private static PointF tempPoint = new PointF();
+
     @Override
     protected void onDraw(Canvas canvas)
     {
@@ -321,6 +329,16 @@ public class TimerView extends RotatableImageView
         // draw digital times
         canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, mTextPaintCountdown);
         canvas.drawText(msEndTime, endtimePosX, endtimePosY, mTextPaintTarget);
+
+//        if (mSettingTime)
+//        {
+//            CoordTools.getVelocityFromAngleAndSpeed(mAngle, 200, tempPoint);
+//            final int left = Math.round(mCentreX + tempPoint.x) - touchGlow.getIntrinsicWidth()/2;
+//            final int top = Math.round(mCentreY - tempPoint.y) - touchGlow.getIntrinsicHeight()/2;
+//            touchGlow.setBounds(left, top, left + touchGlow.getIntrinsicWidth(), top + touchGlow.getIntrinsicHeight());
+//            
+//            touchGlow.draw(canvas);
+//        }
     }
 
     private void initialiseOnFirstDraw()

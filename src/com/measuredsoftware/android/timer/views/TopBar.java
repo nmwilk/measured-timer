@@ -25,10 +25,11 @@ public class TopBar extends RelativeLayout
         
         View.inflate(context, R.layout.top_bar, this);
     }
-    
+
     @Override
-    protected void onFinishInflate()
+    public void setOnClickListener(final OnClickListener listener)
     {
-        super.onFinishInflate();
+        findViewById(R.id.settings_button).setOnClickListener(listener);
+        findViewById(R.id.measured_button).setOnClickListener(listener);
     }
 }
