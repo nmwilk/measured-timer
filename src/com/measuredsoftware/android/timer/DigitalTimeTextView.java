@@ -14,7 +14,7 @@ public class DigitalTimeTextView extends TextView {
   public DigitalTimeTextView(Context context, AttributeSet attrs) {
     super(context, attrs);
     
-    Typeface font = Typeface.createFromAsset(context.getAssets(), TimerActivity.FONT_STRING); // biscuits.ttf 17 // kimbalt_.ttf 26
+    Typeface font = Typeface.createFromAsset(context.getAssets(), Globals.FONT_STRING); // biscuits.ttf 17 // kimbalt_.ttf 26
     
     mPaintTimer = new Paint();
     mPaintTimer.setTypeface(font);
