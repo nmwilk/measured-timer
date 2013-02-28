@@ -1,0 +1,101 @@
+package com.measuredsoftware.android.timer;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+
+public class TimerView extends RotatableImageView {
+  public static interface OnEventListener
+  {
+    public static final int RESULT_VALUE_CHANGE = 0;
+    public static final int RESULT_START        = 1;
+    public static final int RESULT_CANCEL       = 2;
+
+    abstract void onEvent(int nResult, int value);
+  }
+  
+  protected OnEventListener mListener;
+  protected long mEndTime;
+  
+  public TimerView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    
+    mListener = null;
+  }
+
+  public void setOnSetValueChangedListener(OnEventListener l) {
+    mListener = l;
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    boolean b = super.onTouchEvent(event);
+    
+    int res = -1;
+    int value = -1;
+
+    final int action = event.getAction();
+    switch(action) {
+      case MotionEvent.ACTION_DOWN:
+        res = OnEventListener.RESULT_CANCEL;
+        break;
+      case MotionEvent.ACTION_UP:
+        // start the timer
+        res = OnEventListener.RESULT_START;
+        
+        // set the end time
+        mEndTime = System.currentTimeMillis()+convertAngleToTime(mAngle);
+        break;
+      case MotionEvent.ACTION_MOVE:
+        res   = OnEventListener.RESULT_VALUE_CHANGE;
+        value = (int)(((float)mAngle)/3.6f); 
+        break;
+    }    
+    
+    if (mListener != null && res != -1)
+      mListener.onEvent(res, value);
+    
+    return b;
+  }
+  
+  protected long convertAngleToTime(float angle) {
+    return ((long)((angle*1000)/3.6f));    
+  }
+
+  protected float convertTimeToAngle(long time) {
+    time /= 1000;
+    return (float)time*3.6f;
+  }
+  
+  @Override
+  protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+  }
+
+  public long updateTime() {
+    if (mEndTime == 0) {
+      mAngle = 0;
+      return 0;
+    }
+    
+    long left = (mEndTime-System.currentTimeMillis())/1000;
+    if (left < 0)
+      left = 0;
+    
+    mAngle = (int)((float)left*3.6f);
+    
+    return left;
+  }
+
+  public void setEndTime(long value) {
+    mEndTime = value;
+
+    updateTime();
+  }
+  
+  public long getEndTime() {
+    return mEndTime;
+  }  
+}
+

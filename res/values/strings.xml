@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel">cancel</string>
+    <string name="stop">stop</string>
+    <string name="app_name">Measured Timer</string>
+    <string name="title_bar">© Measured Software 2010</string>
+    <string name="othersw">See More Measured Software</string>
+    <string name="otherswlink">market://search?q=pub:measuredsoftware.co.uk</string>
+    <string name="use_notifications_title">Show Notifications</string>
+    <string name="use_notifications_desc">Show notification when timer is set?</string>
+    <string name="send_anon_stats_title">Usage Statistics</string>
+    <string name="send_anon_stats_desc">Allow sending of anonymous usage statistics to developer?</string>
+    <string name="alarm_vol_title">Alarm Volume</string>
+    <string name="alarm_vol_desc">No alarm will sound if in silent mode.</string>
+    <string name="prefs">Settings</string>
+    <string name="notification_title">Timer Active</string>
+    <string name="notification_extitle">Measured Timer</string>
+    <string name="notification_exdesc">Timer active - tap to view</string>
+    <string name="help">Help</string>
+    <string name="help_text">Touch and drag the bezel to set the time.</string>
+    <string name="ok">OK</string>
+</resources>

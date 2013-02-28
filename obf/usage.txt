@@ -1,0 +1,179 @@
+com.measuredsoftware.android.library.R
+com.measuredsoftware.android.library.R$anim
+com.measuredsoftware.android.library.R$attr
+com.measuredsoftware.android.library.R$drawable
+com.measuredsoftware.android.library.R$id
+com.measuredsoftware.android.library.R$layout
+com.measuredsoftware.android.library.R$raw
+com.measuredsoftware.android.library.R$string
+com.measuredsoftware.android.library.R$xml
+com.measuredsoftware.android.library.dbg.ProfileRecorder
+com.measuredsoftware.android.library.dbg.ProfileRecorder$ProfileRecord
+com.measuredsoftware.android.library.game.AnimatedGLSprite
+com.measuredsoftware.android.library.game.BarrierRect
+com.measuredsoftware.android.library.game.BasicRenderer
+com.measuredsoftware.android.library.game.CameraHandler
+com.measuredsoftware.android.library.game.CanvasAnimatedSprite
+com.measuredsoftware.android.library.game.CanvasSprite
+com.measuredsoftware.android.library.game.CanvasSurfaceView
+com.measuredsoftware.android.library.game.CanvasSurfaceView$CanvasThread
+com.measuredsoftware.android.library.game.CanvasSurfaceView$Renderer
+com.measuredsoftware.android.library.game.GLSprite
+com.measuredsoftware.android.library.game.GameState
+com.measuredsoftware.android.library.game.GameThread
+com.measuredsoftware.android.library.game.InputHandler
+com.measuredsoftware.android.library.game.Mass
+com.measuredsoftware.android.library.game.MotionInputHandler
+com.measuredsoftware.android.library.game.PannableGLSprite
+com.measuredsoftware.android.library.game.PhysicsHandler
+com.measuredsoftware.android.library.game.Renderable
+com.measuredsoftware.android.library.game.ResourceSet
+com.measuredsoftware.android.library.game.Resources
+com.measuredsoftware.android.library.game.RotatableCanvasSprite
+com.measuredsoftware.android.library.game.RotatableGLSprite
+com.measuredsoftware.android.library.game.RotatableGLSpriteOld
+com.measuredsoftware.android.library.game.SimpleCanvasRenderer
+com.measuredsoftware.android.library.game.SimpleGLRenderer
+com.measuredsoftware.android.library.game.SoundEffect
+com.measuredsoftware.android.library.game.SoundEffect$1
+com.measuredsoftware.android.library.game.SoundEffect$Builder
+com.measuredsoftware.android.library.game.SoundHandler
+com.measuredsoftware.android.library.game.Sprite
+com.measuredsoftware.android.library.game.TiledCanvasSprite
+com.measuredsoftware.android.library.game.TiledGLSprite
+com.measuredsoftware.android.library.game.Vec2
+com.measuredsoftware.android.library.game.Vec2F
+com.measuredsoftware.android.library.game.Vec2List
+com.measuredsoftware.android.library.gui.BounceInterpolator
+com.measuredsoftware.android.library.gui.MusicProgressBar
+com.measuredsoftware.android.library.gui.NameEditText
+com.measuredsoftware.android.library.gui.NonScrollListView
+com.measuredsoftware.android.library.gui.ResumableProgressDialog
+com.measuredsoftware.android.library.gui.ViewTools
+com.measuredsoftware.android.library.pocketracingcommon.Achievements
+com.measuredsoftware.android.library.utils.Calls
+com.measuredsoftware.android.library.utils.CoordTools:
+    11:12:public static void calculateCorner(float,int,android.graphics.PointF)
+    15:21:public static void calculatePivotOffset(float,float,android.graphics.PointF)
+    24:32:public static void calculateFrontCorners(int,float,float,android.graphics.PointF,android.graphics.PointF)
+    35:41:public static void getVelocityFromAngleAndSpeed(float,float,android.graphics.PointF)
+    45:53:public static void getVelocityFromAngleAndSpeed(float,float,android.graphics.PointF,boolean)
+    75:75:public static int getDotp(com.measuredsoftware.android.library.game.Vec2,com.measuredsoftware.android.library.game.Vec2)
+    80:80:public static int getDotp(com.measuredsoftware.android.library.game.Vec2F,com.measuredsoftware.android.library.game.Vec2F)
+    85:85:public static float getPerpF(float,float,com.measuredsoftware.android.library.game.Vec2F)
+    90:90:public static float getPerp(int,int,com.measuredsoftware.android.library.game.Vec2)
+    105:124:public static float findIntersectionPointF(com.measuredsoftware.android.library.game.Vec2F,com.measuredsoftware.android.library.game.Vec2F,android.graphics.PointF)
+    128:151:public static float findIntersectionPoint(com.measuredsoftware.android.library.game.Vec2,com.measuredsoftware.android.library.game.Vec2,android.graphics.PointF)
+    162:179:public static float findClosestAngleFromOpposites(float,float)
+    183:190:public static float getHyp(float,float,boolean)
+com.measuredsoftware.android.library.utils.DataTools
+com.measuredsoftware.android.library.utils.DateTools:
+    19:26:public static boolean datePast(java.lang.String,int,java.util.GregorianCalendar)
+    30:30:public static boolean datePast(java.lang.String,int)
+    41:58:public static java.lang.String millisecondsToStringMMSS(int)
+    64:78:public static java.lang.String secondsToStringMMSS(int)
+com.measuredsoftware.android.library.utils.DebugTimer
+com.measuredsoftware.android.library.utils.DeviceTools
+com.measuredsoftware.android.library.utils.FileTools
+com.measuredsoftware.android.library.utils.FixedSizeIntArray
+com.measuredsoftware.android.library.utils.Grid
+com.measuredsoftware.android.library.utils.LabelMaker
+com.measuredsoftware.android.library.utils.LabelMaker$Label
+com.measuredsoftware.android.library.utils.Logger
+com.measuredsoftware.android.library.utils.MathTools:
+    10:16:public static int roundUpPower2(int)
+    20:20:public static int roundUpPower2(float)
+com.measuredsoftware.android.library.utils.MotionEventQueue
+com.measuredsoftware.android.library.utils.MotionEventQueue$SimpleMotionEvent
+com.measuredsoftware.android.library.utils.NetTools:
+    12:17:public static boolean isConnectivity(android.content.Context)
+    32:39:public static android.net.NetworkInfo$DetailedState getConnectivityStateDetailed(android.content.Context)
+com.measuredsoftware.android.library.utils.NumericSprite
+com.measuredsoftware.android.library.utils.StringCountMap
+com.measuredsoftware.android.library.utils.TextEntry
+com.measuredsoftware.android.library.utils.TextSprites
+com.measuredsoftware.android.library.utils.UniqueStringArray
+com.measuredsoftware.android.library.utils.ValueTools
+com.measuredsoftware.android.library.utils.XMLUtils
+com.measuredsoftware.android.library.utils.http.GoogleLogin
+com.measuredsoftware.android.library.utils.http.HttpTools:
+    public static final int HTTPTOOLS_ERROR_SUCCESS
+    public static final int HTTPTOOLS_ERROR_NO_ROUTE_TO_HOST
+    public static final int HTTPTOOLS_ERROR_MALF_URL
+    45:81:public static com.measuredsoftware.android.library.utils.http.HttpTools$BinaryPostResult doBinaryPost(java.lang.String,byte[])
+    86:96:public static org.apache.http.HttpResponse doPost(java.lang.String,java.util.Map)
+    111:127:public static org.apache.http.HttpResponse doGet(java.lang.String,java.util.Map)
+com.measuredsoftware.android.library.utils.http.HttpTools$BinaryPostResult
+com.measuredsoftware.android.timer.AlarmBuzzer:
+    private static final int ALARM_TIMEOUT_SECONDS
+    private static final int KILLER
+    private static final float IN_CALL_VOLUME
+com.measuredsoftware.android.timer.Alarms:
+    public static final java.lang.String ALARM_ALERT_ACTION
+    public static final java.lang.String ALARM_DONE_ACTION
+    public static final java.lang.String ALARM_DISMISS_ACTION
+    public static final java.lang.String ALARM_KILLED
+    public static final java.lang.String ALARM_KILLED_TIMEOUT
+    public static final java.lang.String ALARM_INTENT_EXTRA
+    public static final java.lang.String ALARM_ID
+com.measuredsoftware.android.timer.DigitalTimeTextView
+com.measuredsoftware.android.timer.HelpDialog:
+    android.widget.ImageView mFinger
+com.measuredsoftware.android.timer.R
+com.measuredsoftware.android.timer.R$anim
+com.measuredsoftware.android.timer.R$attr
+com.measuredsoftware.android.timer.R$drawable
+com.measuredsoftware.android.timer.R$id
+com.measuredsoftware.android.timer.R$layout
+com.measuredsoftware.android.timer.R$raw
+com.measuredsoftware.android.timer.R$string
+com.measuredsoftware.android.timer.R$xml
+com.measuredsoftware.android.timer.RotatableImageView:
+    public static final int MAX_ANGLE
+com.measuredsoftware.android.timer.TimerActivity:
+    public static final java.lang.String ALARM_ACTION
+    public static final java.lang.String FONT_STRING
+    public static final int ALARM_ID
+    public static final int MENU_OTHER_SW
+    public static final int MENU_PREFS
+    public static final int MENU_HELP
+    public static final int NOTIFICATION_ID
+    private static final int DIALOG_HELP
+    private static final java.lang.String COLOUR_ORANGE
+    private static final java.lang.String COLOUR_DGREY
+    private static final java.lang.String COLOUR_MGREY
+    private static final java.lang.String COLOUR_ENDTIME_ACTIVE
+    public static final boolean DEBUG_MODE_SMALLTIME
+    public static final boolean DEBUG_MODE_UPLOAD_ALWAYS
+    public static final boolean DEBUG_MODE_WELCOME_ALWAYS
+    private static final long DAY_MS
+    private static final long UPLOAD_EVERY
+    public static final int DEFAULT_SCREEN_RES_X
+    public static final int DEFAULT_SCREEN_RES_Y
+    public static final java.lang.String INTENT_VAR_ALARM_RINGING
+    public static final java.lang.String INTENT_VAR_DEVICE_ASLEEP
+    public static final java.lang.String INTENT_SCREEN_OFF
+    public static final java.lang.String PREFS_LOC
+    public static final java.lang.String PREFS_VAL_SENDSTATS
+    public static final java.lang.String PREFS_VAL_USE_NOTIFICATIONS
+    private static final java.lang.String PREFS_VAL_ENDTIME
+    private static final java.lang.String PREFS_VAL_INSTALLDATE
+    private static final java.lang.String PREFS_VAL_CLICKEDMMS
+    private static final java.lang.String PREFS_VAL_AVTIMELEN
+    private static final java.lang.String PREFS_VAL_USAGECOUNT
+    private static final java.lang.String PREFS_VAL_LASTUPLOAD
+    private static final java.lang.String STATS_URL
+    private static final int SHOW_PREFERENCES
+    private static final int ERROR_NET_SUCCESS
+    private static final int ERROR_NET_UNKNOWN
+    private static final int ERROR_NET_NO_ROUTE
+com.measuredsoftware.android.timer.TimerActivity$TickThread:
+    809:810:public void pause()
+    813:814:public void unpause()
+com.measuredsoftware.android.timer.TimerView:
+    protected static final float mMaxTotalAngle
+    public static final java.lang.String TIME_FORMAT
+com.measuredsoftware.android.timer.TimerView$OnEventListener:
+    public static final int RESULT_VALUE_CHANGE
+    public static final int RESULT_START
+    public static final int RESULT_CANCEL

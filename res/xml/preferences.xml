@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+		xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <VolumePreference
+        android:title="@string/alarm_vol_title"
+        android:summary="@string/alarm_vol_desc"
+        android:dialogTitle="@string/alarm_vol_title"
+        android:persistent="false"
+        android:streamType="alarm" />
+        
+    <CheckBoxPreference
+            android:key="usenotifications"
+            android:title="@string/use_notifications_title"
+            android:summary="@string/use_notifications_desc"
+            android:defaultValue="true" />
+
+    <CheckBoxPreference
+            android:key="sendstats"
+            android:title="@string/send_anon_stats_title"
+            android:summary="@string/send_anon_stats_desc"
+            android:defaultValue="true" />
+            
+</PreferenceScreen>
