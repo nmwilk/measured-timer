@@ -1,11 +1,14 @@
 package com.measuredsoftware.android.timer;
 
+import java.util.Calendar;
+import java.util.Collection;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.Calendar;
+import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 
 /**
  * Various alarm tools.
@@ -39,14 +42,15 @@ public class Alarms
     /**
      * @param context
      * @param atTimeInMillis
+     * @param alarmUid 
      */
-    public static void enableAlert(Context context, final long atTimeInMillis)
+    public static void enableAlert(Context context, final long atTimeInMillis, final int alarmUid)
     {
         final AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         final Intent intent = new Intent(ALARM_ALERT_ACTION);
 
-        final PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        final PendingIntent sender = PendingIntent.getBroadcast(context, alarmUid, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         am.set(AlarmManager.RTC_WAKEUP, atTimeInMillis, sender);
 
@@ -54,11 +58,27 @@ public class Alarms
         c.setTimeInMillis(atTimeInMillis);
     }
 
-    static void disableAlert(Context context)
+    /**
+     * @param context
+     * @param alarmUid
+     */
+    public static void disableAlert(final Context context, final int alarmUid)
     {
         final AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        final PendingIntent sender = PendingIntent.getBroadcast(context, 0, new Intent(ALARM_ALERT_ACTION),
+        final PendingIntent sender = PendingIntent.getBroadcast(context, alarmUid, new Intent(ALARM_ALERT_ACTION),
                 PendingIntent.FLAG_CANCEL_CURRENT);
         am.cancel(sender);
+    }
+    
+    /**
+     * @param context
+     * @param endTimes Collection of expired alarms.
+     */
+    public static void disableExpiredAlerts(final Context context, final Collection<Alarm> endTimes)
+    {
+        for(final Alarm alarm : endTimes)
+        {
+            disableAlert(context, alarm.uid);
+        }
     }
 }

@@ -11,11 +11,14 @@ import android.graphics.Typeface;
  */
 public class Globals
 {
-    /* the name of the font resource */
-    private static final String FONT_STRING = "creative.ttf";
-
     /** */
     public static final boolean DEBUG_LAYOUT = true;
+    
+    /** use seconds instead of minutes */
+    public static final boolean DEBUG_QUICK_TIME = true;
+    
+    /* the name of the font resource */
+    private static final String FONT_STRING = "creative.ttf";
 
     /** our time format */
     public static final String TIME_FORMAT = "%H:%M:%S";

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -11,7 +12,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -41,6 +41,7 @@ import com.measuredsoftware.android.library2.utils.DateTools;
 import com.measuredsoftware.android.library2.utils.NetTools;
 import com.measuredsoftware.android.library2.utils.http.HttpTools;
 import com.measuredsoftware.android.timer.data.EndTimes;
+import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 import com.measuredsoftware.android.timer.views.TimerView;
 import com.measuredsoftware.android.timer.views.TopBar;
 
@@ -58,10 +59,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     /** the device asleep variable name for the intent */
     public static final String INTENT_VAR_DEVICE_ASLEEP = "deviceasleep";
 
-    private static final int ALARM_ID = 103494;
-
+//    private static final int ALARM_ID = 103494;
     private static final int NOTIFICATION_ID = 1;
-
+    
     private static final long DAY_MS = 24 * 60 * 60 * 1000;
     private static final long UPLOAD_EVERY = 5 * DAY_MS;
 
@@ -117,7 +117,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         @Override
         public void handleMessage(Message msg)
         {
-            parent.get().getDial().updateTime();
+            parent.get().getDial().updateNowTime();
         }
     }
 
@@ -163,6 +163,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private boolean showNotification;
 
     private boolean threadRun;
+
+    private static int piRequestCode = 0;
 
     private static int appVersion;
 
@@ -363,9 +365,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             this.loadUserPrefs();
             if (!showNotification)
             {
-                removeNotificationItem();
+                removeNotificationItem(null);
             }
-            else if (!lastSN && showNotification && endTimes.timersActive()) createNotificationItem();
+            else if (!lastSN && showNotification && endTimes.timersActive()) createNotificationItem(usageCount);
         }
     }
 
@@ -380,16 +382,25 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     }
 
     @Override
-    public void started(int millisecs)
+    public void started(final int seconds)
     {
         firstChange = true;
         this.fadeInBackground();
-        if (millisecs > 0)
+        if (seconds > 0)
         {
-            final Long endTime = Long.valueOf(Globals.getTime() + (millisecs * 1000));
-            endTimes.addEndTime(endTime);
-            setupAlarm(endTime);
             ++usageCount;
+
+            final Long endTime;
+            if (Globals.DEBUG_QUICK_TIME)
+            {
+                endTime = Long.valueOf(Globals.getTime() + (seconds * 30));
+            }
+            else
+            {
+                endTime = Long.valueOf(Globals.getTime() + (seconds * 1000));
+            }
+            endTimes.addEndTime(endTime, usageCount);
+            setupAlarm(endTime, usageCount);
 
             final int timerLenSecs = (int) (endTime - Globals.getTime()) / 1000;
             avTimeLen = ((avTimeLen + timerLenSecs) / usageCount);
@@ -398,12 +409,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             editor.putInt(PREFS_VAL_USAGECOUNT, usageCount);
             editor.commit();
         }
-        else
-        {
-            endTimes.removeLast();
-            Alarms.disableAlert(this);
-            removeNotificationItem();
-        }
+//        else
+//        {
+//            final Alarm lastAdded = endTimes.removeLast();
+//            Alarms.disableAlert(this, lastAdded.uid);
+//            removeNotificationItem(lastAdded.uid);
+//        }
 
         writeEndTimesToPrefs();
     }
@@ -417,22 +428,29 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private void stopAlarmRinging()
     {
-        removeNotificationItem();
-        Alarms.disableAlert(this);
+        final Collection<Alarm> expiredAlarms = endTimes.getExpiredAlarms();
+        Alarms.disableExpiredAlerts(this, expiredAlarms);
         alarmRinging = false;
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.cancel(ALARM_ID);
+        
+        endTimes.removeExpiredTimers();
+        
+        if (endTimes.count() == 0)
+        {
+            removeNotificationItem(nm);
+        }
+
         stopService(new Intent(Alarms.ALARM_ALERT_ACTION));
         dial.setAlarmIsRinging(false);
     }
 
-    private void setupAlarm(long endTime)
+    private void setupAlarm(final long endTime, final int uidAlarm)
     {
-        Alarms.enableAlert(this, endTime);
-        createNotificationItem();
+        Alarms.enableAlert(this, endTime, uidAlarm);
+        createNotificationItem(uidAlarm);
     }
 
-    private boolean createNotificationItem()
+    private boolean createNotificationItem(final int uidAlarm)
     {
         if (!this.showNotification) return false;
 
@@ -441,22 +459,22 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         final Intent intent = new Intent(this, TimerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        final PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+        final PendingIntent pi = PendingIntent.getActivity(this, uidAlarm, intent, 0);
         notify.setLatestEventInfo(this, notificationExTitle, notificationExDesc, pi);
 
-        nm.notify(TimerActivity.NOTIFICATION_ID, notify);
+        nm.notify(NOTIFICATION_ID, notify);
         return true;
     }
 
-    private void removeNotificationItem()
+    private void removeNotificationItem(final NotificationManager nmanager)
     {
-        final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(TimerActivity.NOTIFICATION_ID);
+        final NotificationManager nm = (nmanager == null) ? (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE) : nmanager;
+        nm.cancel(NOTIFICATION_ID);
     }
 
     private void writeEndTimesToPrefs()
     {
-        writeToPrefs(PREFS_VAL_ENDTIMES, endTimes.toString());
+        writeToPrefs(PREFS_VAL_ENDTIMES, endTimes.removeExpiredTimers().toString());
     }
 
     private void readEndTimesMS()
@@ -544,7 +562,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 {
                     // wait 10 seconds then give up
                     if ((Globals.getTime() - start) > 10000) return;
-                    // /////
 
                     try
                     {
@@ -566,8 +583,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 }
 
                 // CONNECTED
-                final int r = postDeviceDetails(deviceId, deviceModel, deviceOsVersion, installDate, appVersion, usageCount,
-                        avTimeLen, clickedMMSCount);
+                final int r = postDeviceDetails(deviceId, deviceModel, deviceOsVersion, installDate, appVersion,
+                        usageCount, avTimeLen, clickedMMSCount);
 
                 {
                     final Message msg = new Message();

@@ -9,7 +9,6 @@ import android.text.format.Time;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import com.measuredsoftware.android.library2.utils.CoordTools;
 import com.measuredsoftware.android.library2.utils.MathTools;
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
@@ -30,16 +29,16 @@ public class TimerView extends RotatableImageView
         /**
          * rotation started
          * 
-         * @param millisecs
+         * @param seconds
          */
-        void started(int millisecs);
+        void started(int seconds);
 
         /**
          * more rotation occurred
          * 
-         * @param millisecs
+         * @param seconds
          */
-        void valueChanged(int millisecs);
+        void valueChanged(int seconds);
 
         /** called when started called by no value changed. */
         void cancelled();
@@ -170,14 +169,12 @@ public class TimerView extends RotatableImageView
                     // start the timer
                     msgRes = 0;
 
-                    long endTime = 0;
                     // set the end time
                     if (mTotalAngle > 0)
                     {
                         msgValue = this.mCurrentTimeSecs;
-                        endTime = System.currentTimeMillis() + (msgValue * 1000);
                     }
-                    setEndTime(endTime);
+                    setEndTime(0);
                     mCurrentTimeSecs = 0;
                 }
                 break;
@@ -264,38 +261,17 @@ public class TimerView extends RotatableImageView
             this.setEndClockTo((int) ((mEndTimeMS - System.currentTimeMillis()) / 1000));
         }
 
-        updateTime();
+        updateNowTime();
     }
 
-    /** recalc time and invalidate if changed. */
-    public void updateTime()
+    /** update the clock */
+    public void updateNowTime()
     {
-        if (!mCountdownActive)
-        {
-            this.setEndClockTo(mCurrentTimeSecs);
-        }
-
-        if (!mSettingTime)
-        {
-            int secsLeft = 0;
-            if (mEndTimeMS > 0) secsLeft = (int) ((mEndTimeMS - System.currentTimeMillis()) / 1000);
-
-            if (secsLeft < 0)
-            {
-                secsLeft = 0;
-                mEndTimeMS = 0;
-            }
-
-            if (secsLeft != mSecsLeftPrev)
-            {
-                mSecsLeftPrev = secsLeft;
-                setSecsRemaining(secsLeft);
-            }
-        }
+        this.setEndClockTo(mCurrentTimeSecs);
 
         this.invalidate();
     }
-
+    
     private void setCountdownActive(final boolean b)
     {
         mCountdownActive = b;
