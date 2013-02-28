@@ -38,6 +38,14 @@ public class Globals
     }
     
     /**
+     * @return The current time.
+     */
+    public static long getTime()
+    {
+        return System.currentTimeMillis();
+    }
+    
+    /**
      * @param colour argb value.
      */
     public static void setTintColour(final int colour)

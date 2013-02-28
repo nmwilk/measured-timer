@@ -27,7 +27,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.view.View;
@@ -40,6 +39,7 @@ import android.widget.ImageView;
 import com.measuredsoftware.android.library2.utils.DateTools;
 import com.measuredsoftware.android.library2.utils.NetTools;
 import com.measuredsoftware.android.library2.utils.http.HttpTools;
+import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.views.TimerView;
 import com.measuredsoftware.android.timer.views.TopBar;
 
@@ -51,10 +51,10 @@ import com.measuredsoftware.android.timer.views.TopBar;
  */
 public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener
 {
-    /** the alarm ringing variable name for the intent*/
+    /** the alarm ringing variable name for the intent */
     public static final String INTENT_VAR_ALARM_RINGING = "alarmringing";
-    
-    /** the device asleep variable name for the intent*/
+
+    /** the device asleep variable name for the intent */
     public static final String INTENT_VAR_DEVICE_ASLEEP = "deviceasleep";
 
     private static final int ALARM_ID = 103494;
@@ -70,17 +70,17 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private static final String PREFS_VAL_SENDSTATS = "sendstats";
     private static final String PREFS_VAL_USE_NOTIFICATIONS = "usenotifications";
-    
-    private static final String PREFS_VAL_ENDTIME = "endtime";
+
+    private static final String PREFS_VAL_ENDTIMES = "endtimes";
     private static final String PREFS_VAL_INSTALLDATE = "installdate";
-    private static final String PREFS_VAL_CLICKEDMMS = "clickedmms"; 
+    private static final String PREFS_VAL_CLICKEDMMS = "clickedmms";
 
     /* average length of time they set timers for */
     private static final String PREFS_VAL_AVTIMELEN = "avtimelen";
-    
+
     /* how many times have the set the timer */
     private static final String PREFS_VAL_USAGECOUNT = "timercount";
-    
+
     private static final String PREFS_VAL_LASTUPLOAD = "laststatsupload";
 
     private static final String STATS_URL = "https://www.measuredsoftware.co.uk/timer/anonstats.php";
@@ -89,34 +89,34 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private static String notificationExTitle;
     private static String notificationExDesc;
 
-    private TimerView mDial;
-    private ImageView mMainBG;
+    private TimerView dial;
+    private ImageView mainBg;
 
-    private Animation mFadeInSlightAnim;
-    private Animation mFadeOutSlightAnim;
+    private Animation fadeInBackground;
+    private Animation fadeOutBackground;
 
-    private TickThread mTickThread = null;
+    private TickThread tickThread = null;
 
-    private boolean mAlarmRinging;
+    private boolean alarmRinging;
 
-    private SharedPreferences mPrefs;
-    private long mEndTimeMS;
+    private SharedPreferences prefs;
+    private final EndTimes endTimes = new EndTimes();
 
-    private boolean mFirstChange; // first change of timer since DOWN action
-    
+    private boolean firstChange; // first change of timer since DOWN action
+
     private static class TickHandler extends Handler
     {
-        private final WeakReference<TimerActivity> mParent;
+        private final WeakReference<TimerActivity> parent;
 
         public TickHandler(final TimerActivity parent)
         {
-            mParent = new WeakReference<TimerActivity>(parent);
+            this.parent = new WeakReference<TimerActivity>(parent);
         }
 
         @Override
         public void handleMessage(Message msg)
         {
-            mParent.get().getDial().updateTime();
+            parent.get().getDial().updateTime();
         }
     }
 
@@ -124,11 +124,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private static class NetHandler extends Handler
     {
-        private final WeakReference<TimerActivity> mParent;
+        private final WeakReference<TimerActivity> parent;
 
         public NetHandler(final TimerActivity parent)
         {
-            mParent = new WeakReference<TimerActivity>(parent);
+            this.parent = new WeakReference<TimerActivity>(parent);
         }
 
         @Override
@@ -140,7 +140,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 switch (code)
                 {
                     case ERROR_NET_SUCCESS:
-                        mParent.get().setLastStatsUpload(System.currentTimeMillis());
+                        parent.get().setLastStatsUpload(Globals.getTime());
                         break;
                 }
             }
@@ -149,31 +149,31 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             }
         }
     }
-    
+
     private NetHandler netHandler;
 
     // stats vars from prefs
-    private String mInstallDate;
-    private int mClickedMMSCount;
-    private int mAvTimeLen;
-    private int mUsageCount;
-    private long mLastStatsUpload;
-    private boolean mUploadStats;
-    private boolean mShowNotification;
+    private String installDate;
+    private int clickedMMSCount;
+    private int avTimeLen;
+    private int usageCount;
+    private long lastStatsUpload;
+    private boolean uploadStats;
+    private boolean showNotification;
 
-    private boolean mThreadRun;
+    private boolean threadRun;
 
-    private static int mAppVersion;
+    private static int appVersion;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
+
         tickHandler = new TickHandler(this);
         netHandler = new NetHandler(this);
-        
+
         Globals.init(getResources());
 
         final Window win = getWindow();
@@ -189,7 +189,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         {
             pInfo = getPackageManager().getPackageInfo("com.measuredsoftware.android.timer",
                     PackageManager.GET_META_DATA);
-            mAppVersion = pInfo.versionCode;
+            appVersion = pInfo.versionCode;
         }
         catch (NameNotFoundException e)
         {
@@ -204,82 +204,81 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         notificationExTitle = getString(R.string.notification_extitle);
         notificationExDesc = getString(R.string.notification_exdesc);
 
-        mAlarmRinging = false;
+        alarmRinging = false;
         Intent intent = getIntent();
         if (intent != null)
         {
-            mAlarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
+            alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
         }
 
         setContentView(R.layout.app);
-        
+
         // create animations
-        mFadeInSlightAnim = AnimationUtils.loadAnimation(this, R.anim.fade_in_slight);
-        mFadeOutSlightAnim = AnimationUtils.loadAnimation(this, R.anim.fade_out_slight);
+        fadeInBackground = AnimationUtils.loadAnimation(this, R.anim.fade_in_slight);
+        fadeOutBackground = AnimationUtils.loadAnimation(this, R.anim.fade_out_slight);
 
-        mMainBG = (ImageView) findViewById(R.id.back);
+        mainBg = (ImageView) findViewById(R.id.back);
 
-        mDial = (TimerView) findViewById(R.id.timer);
-        mDial.setOnSetValueChangedListener(this);
-        
-        final TopBar topBar = (TopBar)findViewById(R.id.top_bar);
+        dial = (TimerView) findViewById(R.id.timer);
+        dial.setOnSetValueChangedListener(this);
+
+        final TopBar topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
 
-        mTickThread = null;
+        tickThread = null;
 
-        mFirstChange = true;
+        firstChange = true;
 
         // mPrefs = getSharedPreferences(PREFS_LOC, MODE_PRIVATE);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mEndTimeMS = mPrefs.getLong(PREFS_VAL_ENDTIME, 0);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        
+        readEndTimesMS();
 
         // stats
-        mInstallDate = mPrefs.getString(PREFS_VAL_INSTALLDATE, "");
-        mLastStatsUpload = mPrefs.getLong(PREFS_VAL_LASTUPLOAD, System.currentTimeMillis());
-        mClickedMMSCount = mPrefs.getInt(PREFS_VAL_CLICKEDMMS, 0);
-        mAvTimeLen = mPrefs.getInt(PREFS_VAL_AVTIMELEN, 0);
-        mUsageCount = mPrefs.getInt(PREFS_VAL_USAGECOUNT, 0);
+        installDate = prefs.getString(PREFS_VAL_INSTALLDATE, "");
+        lastStatsUpload = prefs.getLong(PREFS_VAL_LASTUPLOAD, Globals.getTime());
+        clickedMMSCount = prefs.getInt(PREFS_VAL_CLICKEDMMS, 0);
+        avTimeLen = prefs.getInt(PREFS_VAL_AVTIMELEN, 0);
+        usageCount = prefs.getInt(PREFS_VAL_USAGECOUNT, 0);
 
         loadUserPrefs();
 
-        if (mInstallDate.length() == 0)
+        if (installDate.length() == 0)
         {
-            final SharedPreferences.Editor editor = mPrefs.edit();
-            mInstallDate = DateTools.getYYYYMMDD();
-            mLastStatsUpload = System.currentTimeMillis() - (4 * DAY_MS);
-            editor.putString(PREFS_VAL_INSTALLDATE, mInstallDate);
-            editor.putLong(PREFS_VAL_LASTUPLOAD, mLastStatsUpload);
+            final SharedPreferences.Editor editor = prefs.edit();
+            installDate = DateTools.getYYYYMMDD();
+            lastStatsUpload = Globals.getTime() - (4 * DAY_MS);
+            editor.putString(PREFS_VAL_INSTALLDATE, installDate);
+            editor.putLong(PREFS_VAL_LASTUPLOAD, lastStatsUpload);
             editor.commit();
         }
     }
 
     protected void setLastStatsUpload(final long currentTimeMillis)
     {
-        mLastStatsUpload = currentTimeMillis;
-        writeToPrefs(PREFS_VAL_LASTUPLOAD, mLastStatsUpload);
+        lastStatsUpload = currentTimeMillis;
+        writeToPrefs(PREFS_VAL_LASTUPLOAD, lastStatsUpload);
     }
 
     protected TimerView getDial()
     {
-        return mDial;
+        return dial;
     }
 
     private void loadUserPrefs()
     {
-        mUploadStats = mPrefs.getBoolean(PREFS_VAL_SENDSTATS, true);
-        mShowNotification = mPrefs.getBoolean(PREFS_VAL_USE_NOTIFICATIONS, true);
+        uploadStats = prefs.getBoolean(PREFS_VAL_SENDSTATS, true);
+        showNotification = prefs.getBoolean(PREFS_VAL_USE_NOTIFICATIONS, true);
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-        if (mAlarmRinging)
+        if (alarmRinging)
         {
-            mEndTimeMS = 0;
-            mDial.setEndTime(0);
             stopAlarmRinging();
-            writeEndTimeToPrefs();
+            writeEndTimesToPrefs();
         }
     }
 
@@ -289,7 +288,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onPause();
 
         stopTickThread();
-        mThreadRun = false;
+        threadRun = false;
     }
 
     @Override
@@ -304,7 +303,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         super.onNewIntent(intent);
 
-        mAlarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
+        alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
         intent.removeExtra(INTENT_VAR_ALARM_RINGING);
         intent.removeExtra(INTENT_VAR_DEVICE_ASLEEP);
     }
@@ -316,24 +315,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         startTickThread();
 
-        mThreadRun = true;
+        threadRun = true;
 
-        if (mAlarmRinging && mEndTimeMS > 0)
+        if (alarmRinging && endTimes.timersActive())
         {
             showStopBuzzerButton();
-            mDial.setAlarmIsRinging(true);
-        }
-
-        int now = (int) (System.currentTimeMillis() / 1000);
-
-        if (mEndTimeMS > now)
-        {
-            // if there was a saved timer and it not expired, start it
-            mDial.setEndTime(mEndTimeMS);
-        }
-        else if (mEndTimeMS == 0)
-        {
-            mDial.setEndTime(0);
+            dial.setAlarmIsRinging(true);
         }
 
         startNetThread();
@@ -350,7 +337,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         {
             case R.id.measured_button:
             {
-                writeToPrefs(TimerActivity.PREFS_VAL_CLICKEDMMS, ++mClickedMMSCount);
+                writeToPrefs(TimerActivity.PREFS_VAL_CLICKEDMMS, ++clickedMMSCount);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.otherswlink)));
 
                 startActivity(intent);
@@ -371,58 +358,71 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SHOW_PREFERENCES_RESULT_CODE)
         {
-            final boolean lastSN = this.mShowNotification;
+            final boolean lastSN = this.showNotification;
             this.loadUserPrefs();
-            if (!mShowNotification)
+            if (!showNotification)
             {
                 removeNotificationItem();
             }
-            else if (!lastSN && mShowNotification && this.mEndTimeMS > 0) createNotificationItem();
+            else if (!lastSN && showNotification && endTimes.timersActive()) createNotificationItem();
         }
     }
 
     @Override
     public void valueChanged(int angle)
     {
-        if (mFirstChange)
+        if (firstChange)
         {
             this.fadeOutBackground();
-            mFirstChange = false;
+            firstChange = false;
         }
     }
-    
+
     @Override
     public void started(int millisecs)
     {
-        mFirstChange = true;
+        firstChange = true;
         this.fadeInBackground();
         if (millisecs > 0)
         {
-            // showCancelButton();
-            mEndTimeMS = System.currentTimeMillis() + (millisecs * 1000);
-            setupAlarm(mEndTimeMS);
-            ++mUsageCount;
-            final int timerLenSecs = (int) (mEndTimeMS - System.currentTimeMillis()) / 1000;
-            mAvTimeLen = ((mAvTimeLen + timerLenSecs) / mUsageCount);
-            final SharedPreferences.Editor editor = mPrefs.edit();
-            editor.putInt(PREFS_VAL_AVTIMELEN, mAvTimeLen);
-            editor.putInt(PREFS_VAL_USAGECOUNT, mUsageCount);
+            final Long endTime = Long.valueOf(Globals.getTime() + (millisecs * 1000)); 
+            endTimes.addEndTime(endTime);
+            setupAlarm(endTime);
+            ++usageCount;
+            
+            final int timerLenSecs = (int) (endTime - Globals.getTime()) / 1000;
+            avTimeLen = ((avTimeLen + timerLenSecs) / usageCount);
+            final SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt(PREFS_VAL_AVTIMELEN, avTimeLen);
+            editor.putInt(PREFS_VAL_USAGECOUNT, usageCount);
             editor.commit();
         }
         else
         {
-            mEndTimeMS = 0;
+            endTimes.removeLast();
             Alarms.disableAlert(this);
             removeNotificationItem();
         }
-        writeEndTimeToPrefs();
+        
+        writeEndTimesToPrefs();
     }
-    
+
     @Override
     public void cancelled()
     {
-        mFirstChange = true;
-        writeEndTimeToPrefs();
+        firstChange = true;
+        writeEndTimesToPrefs();
+    }
+    
+    private void stopAlarmRinging()
+    {
+        removeNotificationItem();
+        Alarms.disableAlert(this);
+        alarmRinging = false;
+        final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.cancel(ALARM_ID);
+        stopService(new Intent(Alarms.ALARM_ALERT_ACTION));
+        dial.setAlarmIsRinging(false);
     }
 
     private void setupAlarm(long endTime)
@@ -431,27 +431,17 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         createNotificationItem();
     }
 
-    private void stopAlarmRinging()
-    {
-        removeNotificationItem();
-        Alarms.disableAlert(this);
-        mAlarmRinging = false;
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.cancel(ALARM_ID);
-        stopService(new Intent(Alarms.ALARM_ALERT_ACTION));
-        mDial.setAlarmIsRinging(false);
-    }
-
     private boolean createNotificationItem()
     {
-        if (!this.mShowNotification) return false;
+        if (!this.showNotification) return false;
 
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notify = new Notification(R.drawable.statusicon, notificationTitle, System.currentTimeMillis());
-        Intent intent = new Intent(this, TimerActivity.class);
+        final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        final Notification notify = new Notification(R.drawable.statusicon, notificationTitle,
+                Globals.getTime());
+        final Intent intent = new Intent(this, TimerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+        final PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
         notify.setLatestEventInfo(this, notificationExTitle, notificationExDesc, pi);
 
         nm.notify(TimerActivity.NOTIFICATION_ID, notify);
@@ -460,41 +450,53 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private void removeNotificationItem()
     {
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(TimerActivity.NOTIFICATION_ID);
     }
 
-    private void writeEndTimeToPrefs()
+    private void writeEndTimesToPrefs()
     {
-        writeToPrefs(PREFS_VAL_ENDTIME, mEndTimeMS);
+        writeToPrefs(PREFS_VAL_ENDTIMES, endTimes.toString());
+    }
+    
+    private void readEndTimesMS()
+    {
+        endTimes.load(prefs.getString(PREFS_VAL_ENDTIMES, ""));
     }
 
-    private void writeToPrefs(String pref, int value)
+    private void writeToPrefs(final String pref, final int value)
     {
-        final SharedPreferences.Editor editor = mPrefs.edit();
+        final SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(pref, value);
         editor.commit();
     }
 
-    private void writeToPrefs(String pref, long value)
+    private void writeToPrefs(final String pref, final long value)
     {
-        SharedPreferences.Editor editor = mPrefs.edit();
+        final SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(pref, value);
+        editor.commit();
+    }
+    
+    private void writeToPrefs(final String pref, final String value)
+    {
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(pref, value);
         editor.commit();
     }
 
     private void startTickThread()
     {
-        mTickThread = new TickThread();
-        mTickThread.start();
+        tickThread = new TickThread();
+        tickThread.start();
     }
 
     private void stopTickThread()
     {
-        if (mTickThread != null)
+        if (tickThread != null)
         {
-            mTickThread.quit();
-            mTickThread = null;
+            tickThread.quit();
+            tickThread = null;
         }
     }
 
@@ -505,32 +507,19 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private void fadeOutBackground()
     {
-        mMainBG.startAnimation(mFadeOutSlightAnim);
+        mainBg.startAnimation(fadeOutBackground);
     }
 
     private void fadeInBackground()
     {
-        mMainBG.startAnimation(mFadeInSlightAnim);
+        mainBg.startAnimation(fadeInBackground);
     }
-
-    /*
-     * private void updateTimeViews() { //if (!mCountdownActive) // return;
-     * //////
-     * 
-     * int timeLeft = 0; final long now = System.currentTimeMillis(); if
-     * (mEndTimeMS > now) timeLeft = (int)(mEndTimeMS-now)/1000;
-     * 
-     * mDial.setSecsRemaining(timeLeft); mDial.invalidate();
-     * 
-     * setDigitalTimeTo((int)timeLeft); }
-     */
 
     private boolean needToUpload()
     {
-        // Log.d("mtimer","upload stats is " + mUploadStats);
-        if (!mUploadStats) return false;
+        if (!uploadStats) return false;
 
-        return (System.currentTimeMillis() > (mLastStatsUpload + UPLOAD_EVERY));
+        return (Globals.getTime() > (lastStatsUpload + UPLOAD_EVERY));
     }
 
     private void startNetThread()
@@ -541,21 +530,20 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             return;
         }
 
-        // Log.d("mtimer","uploading");
-
-        Thread t = new Thread()
+        final Thread t = new Thread()
         {
             @Override
             public void run()
             {
-                long start = SystemClock.uptimeMillis();
+                final long start = Globals.getTime();
+                
                 NetworkInfo.State netState = NetTools.getConnectivityState(TimerActivity.this);
 
                 // wait for connected
                 while (netState != NetworkInfo.State.CONNECTED)
                 {
                     // wait 10 seconds then give up
-                    if ((SystemClock.uptimeMillis() - start) > 10000) return;
+                    if ((Globals.getTime() - start) > 10000) return;
                     // /////
 
                     try
@@ -566,25 +554,23 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                     {
                     }
 
-                    if (!mThreadRun) return;
+                    if (!threadRun) return;
 
                     netState = NetTools.getConnectivityState(TimerActivity.this);
                 }
 
                 {
-                    Message msg = new Message();
+                    final Message msg = new Message();
                     msg.what = 22;
                     netHandler.sendMessage(msg);
                 }
 
                 // CONNECTED
-                int r = postDeviceDetails(deviceId, deviceModel, deviceOsVersion, mInstallDate, mAppVersion,
-                        mUsageCount, mAvTimeLen, mClickedMMSCount);
-
-                // Log.d("mtimer","post returned");
+                int r = postDeviceDetails(deviceId, deviceModel, deviceOsVersion, installDate, appVersion,
+                        usageCount, avTimeLen, clickedMMSCount);
 
                 {
-                    Message msg = new Message();
+                    final Message msg = new Message();
                     msg.what = r;
                     netHandler.sendMessage(msg);
                 }

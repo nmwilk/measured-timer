@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.measuredsoftware.android.timer.Globals;
+import com.measuredsoftware.android.timer.R;
 
 /**
  * List of active timers
@@ -13,9 +14,10 @@ import com.measuredsoftware.android.timer.Globals;
  * @author neil
  * 
  */
-public class TimersList extends LinearLayout
+public class ActiveTimerListView extends LinearLayout
 {
-    private static TimersList.LayoutParams lp;
+    private static ActiveTimerListView.LayoutParams lp;
+    
     private int childHeight;
     private int maxHeight;
 
@@ -23,7 +25,7 @@ public class TimersList extends LinearLayout
      * @param context
      * @param attrs
      */
-    public TimersList(final Context context, final AttributeSet attrs)
+    public ActiveTimerListView(final Context context, final AttributeSet attrs)
     {
         super(context, attrs);
         setOrientation(VERTICAL);
@@ -35,7 +37,7 @@ public class TimersList extends LinearLayout
         
         if (lp == null)
         {
-            lp = new TimersList.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            lp = new ActiveTimerListView.LayoutParams(LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(R.dimen.active_timer_height));
         }
 
         childHeight = 0;
@@ -53,7 +55,7 @@ public class TimersList extends LinearLayout
     @Override
     public void addView(final View child)
     {
-        if (!(child instanceof ActiveTimer)) throw new RuntimeException("Can't add anything other than an ActiveTimerView to a TimersListView");
+        if (!(child instanceof ActiveTimerView)) throw new RuntimeException("Can't add anything other than an ActiveTimerView to a TimersListView");
         
         super.addView(child);
     }
@@ -61,7 +63,7 @@ public class TimersList extends LinearLayout
     /**
      * @param timer
      */
-    public void addTimer(final ActiveTimer timer)
+    public void addTimer(final ActiveTimerView timer)
     {
         super.addView(timer, lp);
     }
@@ -73,7 +75,7 @@ public class TimersList extends LinearLayout
     {
         for(int i=0; i < getChildCount(); i++)
         {
-            final ActiveTimer timer = (ActiveTimer)getChildAt(i);
+            final ActiveTimerView timer = (ActiveTimerView)getChildAt(i);
             if (timer.getTimerId() == timerId)
             {
                 this.removeViewAt(i);

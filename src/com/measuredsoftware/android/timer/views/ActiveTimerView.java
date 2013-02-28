@@ -13,7 +13,7 @@ import com.measuredsoftware.android.timer.R;
  * @author neil
  * 
  */
-public class ActiveTimer extends RelativeLayout
+public class ActiveTimerView extends RelativeLayout
 {
     private final int timerId;
     
@@ -25,13 +25,15 @@ public class ActiveTimer extends RelativeLayout
      * @param countdownTime the formatted string for the countdown time.
      * @param targetTime the formatted string for the target time.
      */
-    public ActiveTimer(final Context context, final int timerId, final String countdownTime, final String targetTime)
+    public ActiveTimerView(final Context context, final int timerId, final String countdownTime, final String targetTime)
     {
         super(context);
         
         this.timerId = timerId;
         
         View.inflate(context, R.layout.active_timer, this);
+        
+        setBackgroundResource(R.drawable.timer_list_back);
         
         countdownTextView = (TextView)findViewById(R.id.countdown_time);
         countdownTextView.setText(countdownTime);

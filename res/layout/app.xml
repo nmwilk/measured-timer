@@ -42,7 +42,7 @@
             android:layout_marginBottom="@dimen/timers_list_margin"
             android:layout_marginTop="@dimen/timers_list_margin" >
 
-            <com.measuredsoftware.android.timer.views.TimersList
+            <com.measuredsoftware.android.timer.views.ActiveTimerListView
                 android:id="@+id/timer_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

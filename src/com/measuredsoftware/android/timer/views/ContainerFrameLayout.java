@@ -34,7 +34,7 @@ public class ContainerFrameLayout extends FrameLayout
         {
             final int childMaxHeight = getMeasuredHeight();
             Log.d(Globals.TAG, "ContainerFrameLayout setting TimersList max height to " + childMaxHeight);
-            ((TimersList)getChildAt(0)).setMaxHeight(childMaxHeight);
+            ((ActiveTimerListView)getChildAt(0)).setMaxHeight(childMaxHeight);
         }
     }
 

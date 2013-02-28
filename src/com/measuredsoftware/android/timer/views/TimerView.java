@@ -244,10 +244,7 @@ public class TimerView extends RotatableImageView
         return true;
     }
 
-    /**
-     * @param endTimeMS
-     */
-    public void setEndTime(long endTimeMS)
+    private void setEndTime(long endTimeMS)
     {
         setCountdownActive(endTimeMS > 0);
 
