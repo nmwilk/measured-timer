@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.measuredsoftware.android.timer.Globals;
@@ -20,16 +20,24 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
  */
 public class ActiveTimerListView extends LinearLayout
 {
+    /** */
+    public interface LayoutListener
+    {
+        /** the View was laid out and sizes can be retrieved now */
+        void wasLayedOut();
+    }
+    
     private static final String TAG = "ATLV";
     
     private static ActiveTimerListView.LayoutParams lp;
 
     private int childHeight;
-    private int maxHeight;
 
     private EndTimes alarms;
 
     private OnClickListener cancelClickListener;
+    
+    private LayoutListener layoutListener;
     
     /**
      * @param context
@@ -49,6 +57,8 @@ public class ActiveTimerListView extends LinearLayout
         {
             lp = new ActiveTimerListView.LayoutParams(LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(
                     R.dimen.active_timer_height));
+            final int margin = getResources().getDimensionPixelSize(R.dimen.active_timer_margin);
+            lp.setMargins(margin, margin, margin, margin);
         }
 
         childHeight = 0;
@@ -63,20 +73,27 @@ public class ActiveTimerListView extends LinearLayout
     }
     
     /**
+     * @param layoutListener
+     */
+    public void setLayoutListener(final LayoutListener layoutListener)
+    {
+        this.layoutListener = layoutListener;
+    }
+    
+    /**
      * @param alarms
      */
     public void setAlarms(final EndTimes alarms)
     {
         this.alarms = alarms;
     }
-
+    
     /**
-     * 
-     * @param maxHeight
+     * @return The height of a single child including top and bottom margins.
      */
-    public void setMaxHeight(final int maxHeight)
+    public int getTimerHeight()
     {
-        this.maxHeight = maxHeight;
+        return childHeight;
     }
 
     /**
@@ -182,26 +199,32 @@ public class ActiveTimerListView extends LinearLayout
 
         if (childHeight == 0 && getChildCount() > 0)
         {
-            childHeight = getChildAt(0).getHeight();
+            final View child = getChildAt(0);
+            childHeight = child.getHeight();
+            if (childHeight != 0)
+            {
+                final ActiveTimerListView.LayoutParams lp = (ActiveTimerListView.LayoutParams)child.getLayoutParams(); 
+                childHeight += lp.bottomMargin;
+                childHeight += lp.topMargin;
+            }
         }
+        
+        if (layoutListener != null) layoutListener.wasLayedOut();
     }
 
     /**
-     * @return true if there's room for another View like the one already added.
-     *         true if none have been added yet.
-     * 
+     * @return Height plus the top and bottom margins.
      */
-    public boolean hasSpace()
+    public int getTotalHeight()
     {
-        boolean hasSpace = true;
-
-        // get last child position
-        if (getChildCount() != 0)
+        int topMargin = 0;
+        int bottomMargin = 0;
+        final FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams)getLayoutParams();
+        if (lp != null)
         {
-            final View lastChild = getChildAt(getChildCount() - 1);
-            hasSpace = (lastChild.getBottom() + childHeight) < maxHeight;
+            bottomMargin = lp.bottomMargin;
+            topMargin = lp.topMargin;
         }
-
-        return hasSpace;
+        return getHeight() + topMargin + bottomMargin;
     }
 }

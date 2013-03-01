@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.measuredsoftware.android.timer.Globals;
-
 import android.util.Log;
+
+import com.measuredsoftware.android.timer.Globals;
 
 /**
  * @author neil
@@ -18,8 +18,11 @@ public class EndTimes
      */
     public class Alarm
     {
-        /** the system time the alarm ends */
-        public final long time;
+        /**
+         * the system time the alarm ends. Not final because we allow it to be
+         * changed if a timer is cancelled.
+         */
+        public long time;
         /** the uid (device unique) id of the alarm */
         public final int uid;
 
@@ -33,7 +36,7 @@ public class EndTimes
             this.time = time;
             this.uid = uid;
         }
-        
+
         /**
          * @param string
          */
@@ -51,13 +54,13 @@ public class EndTimes
                 this.time = Long.valueOf(items[1]);
             }
         }
-        
+
         @Override
         public String toString()
         {
             return String.format("%d=%d", uid, time);
         }
-        
+
         /**
          * @return The formatted countdown time
          */
@@ -89,7 +92,7 @@ public class EndTimes
 
     /**
      * @param time
-     * @param id 
+     * @param id
      */
     public void addEndTime(final long time, final int id)
     {
@@ -104,7 +107,7 @@ public class EndTimes
     public Alarm removeLast()
     {
         final Alarm alarm;
-        
+
         if (endTimes.size() > 0)
         {
             alarm = endTimes.remove(endTimes.size() - 1);
@@ -115,7 +118,7 @@ public class EndTimes
             alarm = null;
             Log.d(TAG, "removeLast: none present");
         }
-        
+
         return alarm;
     }
 
@@ -135,7 +138,7 @@ public class EndTimes
     {
         return endTimes.size();
     }
-    
+
     /**
      * @return true if there's active timers.
      */
@@ -164,7 +167,7 @@ public class EndTimes
 
         return string;
     }
-    
+
     /**
      * @return Non-expired timers in CSV format (<uid>=<endtime>,...)
      */
@@ -187,18 +190,18 @@ public class EndTimes
 
         return sb.toString();
     }
-    
+
     /**
      * @return Convenience reference to this instance.
      */
     public EndTimes removeExpiredTimers()
     {
         final Collection<Alarm> expiredAlarms = getExpiredAlarms();
-        for(final Alarm expiredAlarm : expiredAlarms)
+        for (final Alarm expiredAlarm : expiredAlarms)
         {
             endTimes.remove(expiredAlarm);
         }
-        
+
         return this;
     }
 
@@ -225,23 +228,36 @@ public class EndTimes
 
         Log.d(TAG, "load. " + toString());
     }
-    
+
     /**
-     * Returns a new collection of expired alarms. Does not remove them from its list however.
+     * Returns a new collection of expired alarms. Does not remove them from its
+     * list however.
+     * 
      * @return New collection instance.
      */
     public Collection<Alarm> getExpiredAlarms()
     {
         final List<Alarm> expired = new ArrayList<EndTimes.Alarm>();
-        
-        for(final Alarm alarm : endTimes)
+
+        for (final Alarm alarm : endTimes)
         {
             if (alarm.expired())
             {
                 expired.add(alarm);
             }
         }
-        
+
         return expired;
+    }
+
+    /**
+     * Deletes an alarm from the list.
+     * 
+     * @param alarm
+     *            The instance to remove.
+     */
+    public void removeAlarm(final Alarm alarm)
+    {
+        endTimes.remove(alarm);
     }
 }

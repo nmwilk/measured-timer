@@ -1,6 +1,10 @@
 package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,6 +21,7 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 public class ActiveTimerView extends RelativeLayout
 {
     private final Alarm alarm;
+    private final ColorFilter dimmer;
     
     private final TextView countdownTextView;
     
@@ -41,7 +46,25 @@ public class ActiveTimerView extends RelativeLayout
         final TextView targetTextView = (TextView)findViewById(R.id.target_time);
         targetTextView.setText(alarm.getTargetTime());
         
-        findViewById(R.id.cancel).setOnClickListener(cancelClickListener);
+        dimmer = new PorterDuffColorFilter(0x30FFFFFF, PorterDuff.Mode.SRC_ATOP);
+        
+        setOnClickListener(cancelClickListener);
+        
+        setId(R.id.active_timer_view);
+    }
+    
+    @Override
+    public boolean onTouchEvent(final MotionEvent event)
+    {
+        final boolean b = super.onTouchEvent(event);
+        
+        final int action = event.getAction(); 
+        if (action != MotionEvent.ACTION_MOVE)
+        {
+            getBackground().setColorFilter(action == MotionEvent.ACTION_DOWN ? dimmer : null);
+        }
+        
+        return b;
     }
     
     /**

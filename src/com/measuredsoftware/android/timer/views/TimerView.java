@@ -2,10 +2,12 @@ package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.text.format.Time;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -44,27 +46,27 @@ public class TimerView extends RotatableImageView
         void cancelled();
     }
 
-    protected static final float mMaxTotalAngle = (360 * 72) - 1;
+    protected static final float maxTotalAngle = (360 * 72) - 1;
 
-    protected OnEventListener mListener;
-    protected int mCurrentTimeSecs;
+    protected OnEventListener eventListener;
+    protected int currentTimeSecs;
 
-    private boolean mCountdownActive = false;
+    private boolean countdownAction = false;
 
-    private float mPrevAngle;
-    private float mTotalAngle; // includes if we've looped around
+    private float prevAngle;
+    private float totalAngle; // includes if we've looped around
 
-    private Paint mTextPaintCountdown;
-    private Paint mTextPaintTarget;
+    private Paint textPaintCountdown;
+    private Paint textPaintTarget;
 
     private String msCountdownTime;
     private String msEndTime;
 
-    private long mEndTimeMS;
+    private long endTimeMS;
 
-    private boolean mSettingTime;
+    private boolean settingTime;
 
-    private boolean mAlarmRinging;
+    private boolean alarmRinging;
 
     private int countdownTimePosX;
     private int countdownTimePosY;
@@ -74,6 +76,9 @@ public class TimerView extends RotatableImageView
     private final Drawable touchGlow;
     private final Drawable touchArrow;
     private Drawable innerRing;
+    
+    private final ColorFilter disabledDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
+    private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
 
     /**
      * @param context
@@ -83,19 +88,19 @@ public class TimerView extends RotatableImageView
     {
         super(context, attrs);
 
-        mListener = null;
+        eventListener = null;
 
         super.setIncrement(1);
 
-        mEndTimeMS = 0;
-        mCurrentTimeSecs = 0;
-        mSettingTime = false;
-        mAlarmRinging = false;
+        endTimeMS = 0;
+        currentTimeSecs = 0;
+        settingTime = false;
+        alarmRinging = false;
 
         final Drawable back = this.getBackground();
         if (back == null) throw new RuntimeException("Must supply a background to TimerView.");
 
-        mCountdownActive = false;
+        countdownAction = false;
 
         setDigitalTimeTo(0);
 
@@ -109,16 +114,7 @@ public class TimerView extends RotatableImageView
      */
     public void setOnSetValueChangedListener(final OnEventListener listener)
     {
-        mListener = listener;
-    }
-
-    /**
-     * @param colour
-     *            ARGB int
-     */
-    public void setTextColourCountdown(final int colour)
-    {
-        mTextPaintCountdown.setColor(colour);
+        eventListener = listener;
     }
 
     /**
@@ -127,14 +123,24 @@ public class TimerView extends RotatableImageView
      */
     public void setTextColourTarget(final int colour)
     {
-        mTextPaintTarget.setColor(colour);
+        textPaintTarget.setColor(colour);
     }
+    
+    @Override
+    public void setEnabled(final boolean enabled)
+    {
+        super.setEnabled(enabled);
 
+        updateColorFilters();
+    }
+    
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
+        if (!isEnabled()) return true;
+
         // don't allow moving of timer if ringing
-        if (mAlarmRinging) return true;
+        if (alarmRinging) return true;
 
         final boolean b = super.onTouchEvent(event);
         // parent handled it?
@@ -147,108 +153,115 @@ public class TimerView extends RotatableImageView
         switch (action)
         {
             case MotionEvent.ACTION_DOWN:
-                mCurrentTimeSecs = convertAngleToSecs(mTotalAngle);
+                currentTimeSecs = convertAngleToSecs(totalAngle);
                 msgRes = 2;
                 setCountdownActive(false);
-                mSettingTime = true;
-                mPrevAngle = mAngle;
+                settingTime = true;
+                prevAngle = mAngle;
                 break;
             case MotionEvent.ACTION_UP:
                 if (!mMultitouchActive)
                 {
-                    mSettingTime = false;
+                    settingTime = false;
                     // start the timer
                     msgRes = 0;
 
                     // set the end time
-                    if (mTotalAngle > 0)
+                    if (totalAngle > 0)
                     {
-                        msgValue = this.mCurrentTimeSecs;
+                        msgValue = this.currentTimeSecs;
                     }
                     setEndTime(0);
-                    mCurrentTimeSecs = 0;
+                    currentTimeSecs = 0;
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 // no change?
-                if (mPrevAngle == mAngle) break;
+                if (prevAngle == mAngle) break;
 
                 // calculate difference since last MOVE (complicated due to
                 // passing 359->1)
                 final float angleDiff;
                 // passed 359->1?
-                if (mPrevAngle > 270 && (mAngle > 0 && mAngle < 90))
+                if (prevAngle > 270 && (mAngle > 0 && mAngle < 90))
                 {
-                    angleDiff = (mAngle + 360) - mPrevAngle;
+                    angleDiff = (mAngle + 360) - prevAngle;
                 }
                 // passed 1>359?
-                else if ((mPrevAngle >= 0 && mPrevAngle < 90) && mAngle > 270)
+                else if ((prevAngle >= 0 && prevAngle < 90) && mAngle > 270)
                 {
-                    angleDiff = mAngle - (mPrevAngle + 360);
+                    angleDiff = mAngle - (prevAngle + 360);
                 }
                 else
                 {
-                    angleDiff = mAngle - mPrevAngle;
+                    angleDiff = mAngle - prevAngle;
                 }
 
-                mTotalAngle += angleDiff;
-                if (mTotalAngle > mMaxTotalAngle)
+                totalAngle += angleDiff;
+                if (totalAngle > maxTotalAngle)
                 {
-                    mTotalAngle = mMaxTotalAngle;
-                    mAngle = (mTotalAngle % 360);
+                    totalAngle = maxTotalAngle;
+                    mAngle = (totalAngle % 360);
                 }
-                else if (mTotalAngle < 0)
+                else if (totalAngle < 0)
                 {
-                    mTotalAngle = 0;
+                    totalAngle = 0;
                     mAngle = 0;
                 }
 
-                mCurrentTimeSecs = convertAngleToSecs(mTotalAngle);
-                msgValue = mCurrentTimeSecs;
+                currentTimeSecs = convertAngleToSecs(totalAngle);
+                msgValue = currentTimeSecs;
                 msgRes = 1;
 
-                this.setDigitalTimeTo(mCurrentTimeSecs);
+                this.setDigitalTimeTo(currentTimeSecs);
 
-                mPrevAngle = mAngle;
+                prevAngle = mAngle;
                 break;
         }
 
-        if (mListener != null && msgRes != -1)
+        if (eventListener != null && msgRes != -1)
         {
             switch (msgRes)
             {
                 case 0:
-                    mListener.started(msgValue);
+                    eventListener.started(msgValue);
                     break;
                 case 1:
-                    mListener.valueChanged(msgValue);
+                    eventListener.valueChanged(msgValue);
                     break;
                 default:
-                    mListener.cancelled();
+                    eventListener.cancelled();
                     break;
             }
         }
 
+        updateCountdownTimeFilter();
+
         return true;
     }
-
-    private void setEndTime(long endTimeMS)
+    
+    private void updateCountdownTimeFilter()
     {
-        setCountdownActive(endTimeMS > 0);
+        textPaintCountdown.setColorFilter(settingTime ? null : textDimmer);
+    }
 
-        mEndTimeMS = endTimeMS;
-        if (endTimeMS == 0)
+    private void setEndTime(final long ms)
+    {
+        setCountdownActive(ms > 0);
+
+        endTimeMS = ms;
+        if (ms == 0)
         {
             setSecsRemaining(0);
         }
         else
         {
-            setSecsRemaining((int) (mEndTimeMS - System.currentTimeMillis()) / 1000);
+            setSecsRemaining((int) (endTimeMS - System.currentTimeMillis()) / 1000);
         }
 
-        if (mCountdownActive)
+        if (countdownAction)
         {
-            this.setEndClockTo((int) ((mEndTimeMS - System.currentTimeMillis()) / 1000));
+            this.setEndClockTo((int) ((endTimeMS - System.currentTimeMillis()) / 1000));
         }
 
         updateNowTime();
@@ -257,14 +270,14 @@ public class TimerView extends RotatableImageView
     /** update the clock */
     public void updateNowTime()
     {
-        this.setEndClockTo(mCurrentTimeSecs);
+        this.setEndClockTo(currentTimeSecs);
 
         this.invalidate();
     }
     
     private void setCountdownActive(final boolean b)
     {
-        mCountdownActive = b;
+        countdownAction = b;
     }
 
     protected static int convertAngleToSecs(final float angle)
@@ -286,12 +299,14 @@ public class TimerView extends RotatableImageView
         super.onDraw(canvas);
 
         initialiseOnFirstDraw();
-
+        
         innerRing.draw(canvas);
+        
+        updateCountdownTimeFilter();
 
         // draw digital times
-        canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, mTextPaintCountdown);
-        canvas.drawText(msEndTime, endtimePosX, endtimePosY, mTextPaintTarget);
+        canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, textPaintCountdown);
+        canvas.drawText(msEndTime, endtimePosX, endtimePosY, textPaintTarget);
 
 //        if (mSettingTime)
 //        {
@@ -315,19 +330,33 @@ public class TimerView extends RotatableImageView
 
             innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
         }
-
-        if (mTextPaintCountdown == null) createPaints();
+        
+        if (textPaintCountdown == null) createPaints();
 
         countdownTimePosX = getWidth() / 2;
         countdownTimePosY = getHeight() / 2;
         endtimePosX = countdownTimePosX;
-        endtimePosY = countdownTimePosY + Math.round(mTextPaintCountdown.getTextSize());
+        endtimePosY = countdownTimePosY + Math.round(textPaintCountdown.getTextSize());
+        
+        updateColorFilters();
+    }
+    
+    private void updateColorFilters()
+    {
+        if (innerRing != null)
+        {
+            final ColorFilter currentColorFilter = isEnabled() ? null : disabledDimmer;
+            
+            getBackground().setColorFilter(currentColorFilter);
+            textPaintTarget.setColorFilter(currentColorFilter);
+            innerRing.setColorFilter(currentColorFilter);
+        }
     }
 
     private void createPaints()
     {
-        mTextPaintCountdown = TimerTextView.stylePaint(TextType.COUNTDOWN, getWidth());
-        mTextPaintTarget = TimerTextView.stylePaint(TextType.TARGET, getWidth());
+        textPaintCountdown = TimerTextView.stylePaint(TextType.COUNTDOWN, getWidth());
+        textPaintTarget = TimerTextView.stylePaint(TextType.TARGET, getWidth());
     }
 
     private void setSecsRemaining(int secs)
@@ -335,14 +364,14 @@ public class TimerView extends RotatableImageView
         if (secs == 0)
         {
             mAngle = 0;
-            mTotalAngle = 0;
-            mPrevAngle = 0;
+            totalAngle = 0;
+            prevAngle = 0;
         }
         else
         {
-            mTotalAngle = convertSecsToAngle(secs);
-            mPrevAngle = mTotalAngle;
-            mAngle = mTotalAngle % 360;
+            totalAngle = convertSecsToAngle(secs);
+            prevAngle = totalAngle;
+            mAngle = totalAngle % 360;
         }
 
         this.setDigitalTimeTo(secs);
@@ -352,7 +381,7 @@ public class TimerView extends RotatableImageView
     {
         setDigitalCountdown(Globals.getFormattedTimeRemaining(seconds));
 
-        if (!mCountdownActive)
+        if (!countdownAction)
         {
             setEndClockTo(seconds);
         }
@@ -363,7 +392,7 @@ public class TimerView extends RotatableImageView
      */
     public void setAlarmIsRinging(final boolean b)
     {
-        mAlarmRinging = b;
+        alarmRinging = b;
     }
 
     private void setEndClockTo(final int seconds)

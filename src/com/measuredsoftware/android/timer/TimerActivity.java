@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -43,6 +44,7 @@ import com.measuredsoftware.android.library2.utils.http.HttpTools;
 import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 import com.measuredsoftware.android.timer.views.ActiveTimerListView;
+import com.measuredsoftware.android.timer.views.ActiveTimerListView.LayoutListener;
 import com.measuredsoftware.android.timer.views.ActiveTimerView;
 import com.measuredsoftware.android.timer.views.TimerView;
 import com.measuredsoftware.android.timer.views.TopBar;
@@ -94,6 +96,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private TimerView dial;
     private ImageView mainBg;
     private ActiveTimerListView activeTimers;
+    private View activeTimersContainer;
 
     private Animation fadeInBackground;
     private Animation fadeOutBackground;
@@ -103,6 +106,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private boolean alarmRinging;
     private boolean startedByIntent;
     private boolean deviceAsleep;
+    
+    private boolean spaceInList = true;
 
     private SharedPreferences prefs;
     private final EndTimes endTimes = new EndTimes();
@@ -230,6 +235,16 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         dial.setOnSetValueChangedListener(this);
 
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
+        activeTimersContainer = findViewById(R.id.timer_list_container);
+        
+        activeTimers.setLayoutListener(new LayoutListener()
+        {
+            @Override
+            public void wasLayedOut()
+            {
+                checkRemainingSpaceInList();
+            }
+        });
 
         final TopBar topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
@@ -267,6 +282,17 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         }
     }
 
+    protected void checkRemainingSpaceInList()
+    {
+        final int containerHeight = activeTimersContainer.getHeight();
+        final int listHeight = activeTimers.getTotalHeight();
+        final int itemHeight = activeTimers.getTimerHeight();
+        Log.d(Globals.TAG, "Containerheight: " + containerHeight + ", listHeight: " + listHeight + ", itemHeight: " + itemHeight);
+        
+        spaceInList = activeTimersContainer.getHeight() == 0 ? true : (listHeight + itemHeight) < containerHeight;
+        dial.setEnabled(spaceInList);
+    }
+
     protected void setLastStatsUpload(final long currentTimeMillis)
     {
         lastStatsUpload = currentTimeMillis;
@@ -291,7 +317,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         if (alarmRinging)
         {
             stopAlarmRinging();
-            writeEndTimesToPrefs();
         }
     }
 
@@ -334,6 +359,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             showStopBuzzerButton();
             dial.setAlarmIsRinging(true);
         }
+        
+        dial.setEnabled(spaceInList);
 
         startNetThread();
     }
@@ -361,20 +388,20 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 startActivityForResult(intent, SHOW_PREFERENCES_RESULT_CODE);
                 break;
             }
-            case R.id.cancel_button:
+            case R.id.active_timer_view:
             {
                 final ActiveTimerView activeTimerView = (ActiveTimerView) view;
+                
+                final Alarm alarm = activeTimerView.getAlarm();
+                alarm.time = 0;
 
                 boolean shutdown = false;
-                if (!alarmRinging) break;
-                    
-                if (startedByIntent)
+                if (alarmRinging && startedByIntent)
                 {
                     shutdown = true;
                 }
 
                 stopAlarmRinging();
-                writeEndTimesToPrefs();
 
                 if (shutdown)
                 {
@@ -446,14 +473,18 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         // removeNotificationItem(lastAdded.uid);
         // }
 
-        writeEndTimesToPrefs();
-        activeTimers.updateAlarms();
+        updateAlarms();
     }
 
     @Override
     public void cancelled()
     {
         firstChange = true;
+        updateAlarms();
+    }
+    
+    private void updateAlarms()
+    {
         writeEndTimesToPrefs();
         activeTimers.updateAlarms();
     }
@@ -475,7 +506,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         stopService(new Intent(Alarms.ALARM_ALERT_ACTION));
         dial.setAlarmIsRinging(false);
 
-        activeTimers.updateAlarms();
+        updateAlarms();
     }
 
     private void setupAlarm(final long endTime, final int uidAlarm)

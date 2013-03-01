@@ -35,7 +35,8 @@
             android:background="@drawable/dial_main"
             android:src="@drawable/dial_spinner" />
 
-        <com.measuredsoftware.android.timer.views.ContainerFrameLayout
+        <FrameLayout
+            android:id="@+id/timer_list_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/timer"
@@ -47,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical" />
-        </com.measuredsoftware.android.timer.views.ContainerFrameLayout>
+        </FrameLayout>
     </RelativeLayout>
 
 </RelativeLayout>
