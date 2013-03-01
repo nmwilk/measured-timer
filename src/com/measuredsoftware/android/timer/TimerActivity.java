@@ -105,7 +105,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private boolean alarmRinging;
     private boolean startedByIntent;
     private boolean deviceAsleep;
-    
+
     private boolean spaceInList = true;
 
     private SharedPreferences prefs;
@@ -181,10 +181,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         super.onCreate(savedInstanceState);
 
+        Globals.init(getResources());
+
         tickHandler = new TickHandler(this);
         netHandler = new NetHandler(this);
-
-        Globals.init(getResources());
 
         final Window win = getWindow();
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -216,7 +216,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         alarmRinging = false;
         startedByIntent = false;
-        
+
         Intent intent = getIntent();
         if (intent != null)
         {
@@ -235,13 +235,13 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         dial.setOnSetValueChangedListener(this);
 
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
-        
+
         activeTimers.setLayoutListener(new LayoutListener()
         {
             @Override
-            public void wasLayedOut()
+            public void wasLayedOut(final boolean layoutChanged)
             {
-                checkRemainingSpaceInList();
+                checkRemainingSpaceInList(layoutChanged);
             }
         });
 
@@ -281,15 +281,19 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         }
     }
 
-    protected void checkRemainingSpaceInList()
+    protected void checkRemainingSpaceInList(final boolean layoutChanged)
     {
-        final int containerHeight = activeTimers.getTotalHeight();
         final int itemHeight = activeTimers.getTimerHeight();
+        final int containerHeight = activeTimers.getTotalHeight();
         final int listHeight = activeTimers.getChildCount() * itemHeight;
-        Log.d(Globals.TAG, "Containerheight: " + containerHeight + ", listHeight: " + listHeight + ", itemHeight: " + itemHeight);
-        
+        Log.d(Globals.TAG, "Containerheight: " + containerHeight + ", listHeight: " + listHeight + ", itemHeight: "
+                + itemHeight);
         spaceInList = containerHeight == 0 ? true : (listHeight + itemHeight) < containerHeight;
-        dial.setEnabled(spaceInList);
+
+        if (dial.isEnabled() != spaceInList)
+        {
+            dial.setEnabled(spaceInList);
+        }
     }
 
     protected void setLastStatsUpload(final long currentTimeMillis)
@@ -302,7 +306,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         return dial;
     }
-    
+
     protected ActiveTimerListView getTimerList()
     {
         return activeTimers;
@@ -331,7 +335,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         stopTickThread();
         threadRun = false;
-        
+
         startedByIntent = false;
     }
 
@@ -363,7 +367,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             showStopBuzzerButton();
             dial.setAlarmIsRinging(true);
         }
-        
+
         dial.setEnabled(spaceInList);
 
         startNetThread();
@@ -395,7 +399,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             case R.id.active_timer_view:
             {
                 final ActiveTimerView activeTimerView = (ActiveTimerView) view;
-                
+
                 final Alarm alarm = activeTimerView.getAlarm();
                 alarm.ms = 0;
 
@@ -460,9 +464,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             {
                 endTime = Long.valueOf(Globals.getTime() + (seconds * 1000));
             }
-            
-            Log.d(Globals.TAG, "starting timer, length " + (endTime-Globals.getTime()) + " ( " + Globals.getTime() + " -> " + endTime + ")");
-            
+
+            Log.d(Globals.TAG, "starting timer, length " + (endTime - Globals.getTime()) + " ( " + Globals.getTime()
+                    + " -> " + endTime + ")");
+
             endTimes.addEndTime(endTime, usageCount);
             setupAlarm(endTime, usageCount);
 
@@ -489,7 +494,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         firstChange = true;
         updateAlarms();
     }
-    
+
     private void updateAlarms()
     {
         writeEndTimesToPrefs();

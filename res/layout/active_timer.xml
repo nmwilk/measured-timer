@@ -7,8 +7,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="@dimen/target_time_button_margin_left"
         android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/target_time_button_margin_left"
+        android:clickable="false"
         android:textSize="@dimen/target_text_size"
         app:textType="target" />
 
@@ -17,16 +18,18 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
+        android:clickable="false"
         android:textSize="@dimen/countdown_text_size"
         app:textType="countdown" />
 
-    <com.measuredsoftware.android.timer.views.CancelButton
+    <com.measuredsoftware.android.timer.views.CancelIcon
         android:id="@+id/cancel_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="@dimen/cancel_button_margin_right"
         android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/cancel_button_margin_right"
+        android:clickable="false"
         android:padding="@dimen/cancel_button_padding" />
 
 </merge>

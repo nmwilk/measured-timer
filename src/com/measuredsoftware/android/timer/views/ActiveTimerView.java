@@ -68,13 +68,6 @@ public class ActiveTimerView extends RelativeLayout
         return b;
     }
     
-    @Override
-    public void invalidate()
-    {
-        super.invalidate();
-        countdownTextView.setText(alarm.getCountdownTime());
-    }
-    
     /**
      * @param time the formatted string.
      */
@@ -89,5 +82,16 @@ public class ActiveTimerView extends RelativeLayout
     public Alarm getAlarm()
     {
         return this.alarm;
+    }
+
+    /**
+     * Update the countdown time. 
+     */
+    public void updateCountdown()
+    {
+        if (!countdownTextView.getText().equals(alarm.getCountdownTime()))
+        {
+            countdownTextView.setText(alarm.getCountdownTime());
+        }
     }
 }

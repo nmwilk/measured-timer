@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -77,7 +76,6 @@ public class TimerView extends RotatableImageView
     private final Drawable touchArrow;
     private Drawable innerRing;
     
-    private final ColorFilter disabledDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
     private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
 
     /**
@@ -131,7 +129,7 @@ public class TimerView extends RotatableImageView
     {
         super.setEnabled(enabled);
 
-        updateColorFilters();
+        updateVisibleStates();
     }
     
     @Override
@@ -291,8 +289,6 @@ public class TimerView extends RotatableImageView
         return (time / 10);
     }
 
-    private static PointF tempPoint = new PointF();
-
     @Override
     protected void onDraw(Canvas canvas)
     {
@@ -338,18 +334,14 @@ public class TimerView extends RotatableImageView
         endtimePosX = countdownTimePosX;
         endtimePosY = countdownTimePosY + Math.round(textPaintCountdown.getTextSize());
         
-        updateColorFilters();
+        updateVisibleStates();
     }
     
-    private void updateColorFilters()
+    private void updateVisibleStates()
     {
         if (innerRing != null)
         {
-            final ColorFilter currentColorFilter = isEnabled() ? null : disabledDimmer;
-            
-            getBackground().setColorFilter(currentColorFilter);
-            textPaintTarget.setColorFilter(currentColorFilter);
-            innerRing.setColorFilter(currentColorFilter);
+            getBackground().setAlpha(isEnabled() ? 255 : 100);
         }
     }
 

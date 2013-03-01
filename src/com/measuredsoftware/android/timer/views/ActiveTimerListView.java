@@ -1,9 +1,12 @@
 package com.measuredsoftware.android.timer.views;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -24,7 +27,7 @@ public class ActiveTimerListView extends LinearLayout
     public interface LayoutListener
     {
         /** the View was laid out and sizes can be retrieved now */
-        void wasLayedOut();
+        void wasLayedOut(boolean layoutChanged);
     }
     
     private static final String TAG = "ATLV";
@@ -52,6 +55,10 @@ public class ActiveTimerListView extends LinearLayout
         {
             setBackgroundColor(0x40FFFF00);
         }
+        else
+        {
+            setBackgroundDrawable(null);
+        }
 
         if (lp == null)
         {
@@ -61,7 +68,20 @@ public class ActiveTimerListView extends LinearLayout
             final int vertMargin = getResources().getDimensionPixelSize(R.dimen.active_timer_margin_vert);
             lp.setMargins(horizMargin, vertMargin, horizMargin, vertMargin);
         }
-
+        
+        final LayoutTransition transition = getLayoutTransition();
+        if (transition != null)
+        {
+            Log.d(TAG, "CHANGE_APPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_APPEARING).toString());
+            Log.d(TAG, "CHANGE_DISAPPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_DISAPPEARING).toString());
+            //Log.d(TAG, "CHANGING " + transition.getInterpolator(LayoutTransition.CHANGING).toString());
+            Log.d(TAG, "APPEARING " + transition.getInterpolator(LayoutTransition.APPEARING).toString());
+            Log.d(TAG, "DISAPPEARING " + transition.getInterpolator(LayoutTransition.DISAPPEARING).toString());
+            
+            transition.setInterpolator(LayoutTransition.CHANGE_APPEARING, new DecelerateInterpolator(2f));
+            transition.setInterpolator(LayoutTransition.CHANGE_DISAPPEARING, new DecelerateInterpolator(2f));
+        }
+        
         childHeight = 0;
     }
     
@@ -105,7 +125,7 @@ public class ActiveTimerListView extends LinearLayout
         for (int i = 0; i < getChildCount(); i++)
         {
             final ActiveTimerView timerView = (ActiveTimerView) getChildAt(i);
-            timerView.invalidate();
+            timerView.updateCountdown();
         }
     }
 
@@ -186,7 +206,28 @@ public class ActiveTimerListView extends LinearLayout
 
     private void addTimer(final ActiveTimerView timer)
     {
-        super.addView(timer, lp);
+        timer.setLayoutParams(lp);
+        
+        int earlierTimers = 0;
+        final long endTime = timer.getAlarm().ms; 
+        for(int i=0; i < getChildCount(); i++)
+        {
+            final ActiveTimerView child = (ActiveTimerView)getChildAt(i);
+            
+            if (endTime > child.getAlarm().ms)
+            {
+                ++earlierTimers;
+            }
+        }
+
+        if (earlierTimers == getChildCount())
+        {
+            super.addView(timer);
+        }
+        else
+        {
+            super.addView(timer, earlierTimers);
+        }
     }
 
     /**
@@ -222,7 +263,10 @@ public class ActiveTimerListView extends LinearLayout
             }
         }
         
-        if (layoutListener != null) layoutListener.wasLayedOut();
+        if (layoutListener != null)
+        { 
+            layoutListener.wasLayedOut(changed);
+        }
     }
 
     /**

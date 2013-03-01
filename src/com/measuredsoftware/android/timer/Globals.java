@@ -1,5 +1,8 @@
 package com.measuredsoftware.android.timer;
 
+import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
+
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.text.format.Time;
@@ -30,6 +33,9 @@ public class Globals
     private static int tintColour = 0;
     
     private static Typeface mFont;
+
+    private static final int TEXT_COLOUR_DEFAULT_COUNTDOWN = 0xFFFFFFFF;
+    private static int textColorDefaultEndTime = 0;
     
     /**
      * Call once before using Globals. 
@@ -39,6 +45,7 @@ public class Globals
     {
         tintColour = resources.getColor(R.color.tint);
         mFont = Typeface.createFromAsset(resources.getAssets(), FONT_STRING);
+        textColorDefaultEndTime = resources.getColor(R.color.tint);
     }
     
     /**
@@ -50,7 +57,7 @@ public class Globals
     }
 
     private static final Time TIME = new Time();
-    
+
     /**
      * @param secondsRemaining
      * @return The remaining time formatted as HH:MM:SS.
@@ -110,6 +117,15 @@ public class Globals
             throw new RuntimeException("Font not initialised. Call Globals.init(Resources res).");
         }
         return mFont;
+    }
+
+    /**
+     * @param type
+     * @return ARGB colour
+     */
+    public static int getTextColor(final TextType type)
+    {
+        return type == TextType.COUNTDOWN ? TEXT_COLOUR_DEFAULT_COUNTDOWN : textColorDefaultEndTime ;
     }
     
 }

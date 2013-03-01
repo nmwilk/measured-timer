@@ -42,7 +42,8 @@
             android:layout_above="@id/timer"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="@dimen/timers_list_margin"
-            android:layout_marginTop="@dimen/timers_list_margin" />
+            android:layout_marginTop="@dimen/timers_list_margin"
+            android:animateLayoutChanges="true" />
     </RelativeLayout>
 
 </RelativeLayout>

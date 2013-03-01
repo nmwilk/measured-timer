@@ -1,7 +1,6 @@
 package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
@@ -17,9 +16,6 @@ import com.measuredsoftware.android.timer.R;
  */
 public class TimerTextView extends TextView
 {
-    private static final int TEXT_COLOUR_DEFAULT_COUNTDOWN = 0xFFFFFFFF;
-    private static int textColorDefaultEndTime;
-
     /** */
     public enum TextType
     {
@@ -38,21 +34,11 @@ public class TimerTextView extends TextView
     {
         super(context, attrs);
 
-        setTextEndTimeTextColour(getResources());
-
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TimerTextView);
         final TextType type = TextType.values()[a.getInt(R.styleable.TimerTextView_textType, 0)];
         a.recycle();
 
         TimerTextView.styleTextView(this, type);
-    }
-
-    private static void setTextEndTimeTextColour(final Resources resources)
-    {
-        if (textColorDefaultEndTime == 0)
-        {
-            textColorDefaultEndTime = resources.getColor(R.color.tint);
-        }
     }
 
     /**
@@ -68,7 +54,7 @@ public class TimerTextView extends TextView
         paint.setTypeface(Globals.getFont());
         paint.setTextSize(textSize);
         paint.setTextAlign(Align.CENTER);
-        paint.setColor(type == TextType.COUNTDOWN ? TEXT_COLOUR_DEFAULT_COUNTDOWN : textColorDefaultEndTime);
+        paint.setColor(Globals.getTextColor(type));
         paint.setShadowLayer(textSize / 18f, 0, textSize / 20f, 0x7F000000);
 
         return paint;
@@ -80,11 +66,9 @@ public class TimerTextView extends TextView
      */
     public static void styleTextView(final TextView textView, final TextType type)
     {
-        setTextEndTimeTextColour(textView.getResources());
-        
         textView.setTypeface(Globals.getFont());
         textView.setGravity(Gravity.CENTER);
-        textView.setTextColor(type == TextType.COUNTDOWN ? TEXT_COLOUR_DEFAULT_COUNTDOWN : textColorDefaultEndTime);
+        textView.setTextColor(Globals.getTextColor(type));
         final float textSize = textView.getTextSize();
         textView.setShadowLayer(textSize / 18f, 0, textSize / 20f, 0x7F000000);
     }

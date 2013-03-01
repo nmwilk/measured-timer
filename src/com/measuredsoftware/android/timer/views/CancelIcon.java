@@ -1,10 +1,10 @@
 package com.measuredsoftware.android.timer.views;
 
-import com.measuredsoftware.android.timer.R;
-
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.measuredsoftware.android.timer.R;
 
 /**
  * Lives inside an ActiveTimerView, and is a button to cancel an active timer.
@@ -12,13 +12,13 @@ import android.widget.ImageButton;
  * @author neil
  * 
  */
-public class CancelButton extends ImageButton
+public class CancelIcon extends ImageView
 {
     /**
      * @param context
      * @param attrs
      */
-    public CancelButton(final Context context, final AttributeSet attrs)
+    public CancelIcon(final Context context, final AttributeSet attrs)
     {
         super(context, attrs);
         
