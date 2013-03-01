@@ -22,7 +22,7 @@ public class EndTimes
          * the system time the alarm ends. Not final because we allow it to be
          * changed if a timer is cancelled.
          */
-        public long time;
+        public long ms;
         /** the uid (device unique) id of the alarm */
         public final int uid;
 
@@ -33,7 +33,7 @@ public class EndTimes
          */
         public Alarm(final long time, final int uid)
         {
-            this.time = time;
+            this.ms = time;
             this.uid = uid;
         }
 
@@ -45,20 +45,20 @@ public class EndTimes
             final String[] items = string.split("=");
             if (items == null)
             {
-                this.time = 0;
+                this.ms = 0;
                 this.uid = 0;
             }
             else
             {
                 this.uid = Integer.valueOf(items[0]);
-                this.time = Long.valueOf(items[1]);
+                this.ms = Long.valueOf(items[1]);
             }
         }
 
         @Override
         public String toString()
         {
-            return String.format("%d=%d", uid, time);
+            return String.format("%d=%d", uid, ms);
         }
 
         /**
@@ -66,7 +66,7 @@ public class EndTimes
          */
         public String getCountdownTime()
         {
-            return Globals.getFormattedTimeRemaining(this.time - Globals.getTime());
+            return Globals.getFormattedTimeRemaining((this.ms - Globals.getTime()) / 1000);
         }
 
         /**
@@ -74,7 +74,7 @@ public class EndTimes
          */
         public String getTargetTime()
         {
-            return Globals.getFormattedTimeEnd(this.time - Globals.getTime());
+            return Globals.getFormattedTimeEnd((this.ms - Globals.getTime()) / 1000);
         }
 
         /**
@@ -82,7 +82,7 @@ public class EndTimes
          */
         public boolean expired()
         {
-            return this.time < Globals.getTime();
+            return this.ms < Globals.getTime();
         }
     }
 
@@ -96,8 +96,7 @@ public class EndTimes
      */
     public void addEndTime(final long time, final int id)
     {
-        final Long endTime = Long.valueOf(time);
-        Log.d(TAG, "addEndTime " + id + ", " + endTime);
+        Log.d(TAG, "addEndTime " + id + ", " + time);
         endTimes.add(new Alarm(time, id));
     }
 

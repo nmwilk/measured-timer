@@ -96,6 +96,18 @@ public class ActiveTimerListView extends LinearLayout
     {
         return childHeight;
     }
+    
+    /**
+     * 
+     */
+    public void tickAlarms()
+    {
+        for (int i = 0; i < getChildCount(); i++)
+        {
+            final ActiveTimerView timerView = (ActiveTimerView) getChildAt(i);
+            timerView.invalidate();
+        }
+    }
 
     /**
      * Cause the View to update its children from the model.

@@ -52,12 +52,12 @@ public class Globals
     private static final Time TIME = new Time();
     
     /**
-     * @param inSecs
+     * @param secondsRemaining
      * @return The remaining time formatted as HH:MM:SS.
      */
-    public static String getFormattedTimeRemaining(final long inSecs)
+    public static String getFormattedTimeRemaining(final long secondsRemaining)
     {
-        final long seconds = (inSecs < 0) ? 0 : inSecs;
+        final long seconds = (secondsRemaining < 0) ? 0 : secondsRemaining;
         
         final int secs = (int)(seconds % 60);
         final int mins = (int)(seconds / 60) % 60;

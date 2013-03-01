@@ -45,6 +45,7 @@ public class ActiveTimerView extends RelativeLayout
         
         final TextView targetTextView = (TextView)findViewById(R.id.target_time);
         targetTextView.setText(alarm.getTargetTime());
+        targetTextView.setTextColor(getResources().getColor(R.color.tint));
         
         dimmer = new PorterDuffColorFilter(0x30FFFFFF, PorterDuff.Mode.SRC_ATOP);
         
@@ -65,6 +66,13 @@ public class ActiveTimerView extends RelativeLayout
         }
         
         return b;
+    }
+    
+    @Override
+    public void invalidate()
+    {
+        super.invalidate();
+        countdownTextView.setText(alarm.getCountdownTime());
     }
     
     /**

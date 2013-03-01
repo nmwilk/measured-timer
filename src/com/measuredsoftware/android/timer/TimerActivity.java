@@ -126,6 +126,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         public void handleMessage(Message msg)
         {
             parent.get().getDial().updateNowTime();
+            parent.get().getTimerList().tickAlarms();
         }
     }
 
@@ -301,6 +302,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         return dial;
     }
+    
+    protected ActiveTimerListView getTimerList()
+    {
+        return activeTimers;
+    }
 
     private void loadUserPrefs()
     {
@@ -391,7 +397,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 final ActiveTimerView activeTimerView = (ActiveTimerView) view;
                 
                 final Alarm alarm = activeTimerView.getAlarm();
-                alarm.time = 0;
+                alarm.ms = 0;
 
                 boolean shutdown = false;
                 if (alarmRinging && startedByIntent)
@@ -454,6 +460,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             {
                 endTime = Long.valueOf(Globals.getTime() + (seconds * 1000));
             }
+            
+            Log.d(Globals.TAG, "starting timer, length " + (endTime-Globals.getTime()) + " ( " + Globals.getTime() + " -> " + endTime + ")");
+            
             endTimes.addEndTime(endTime, usageCount);
             setupAlarm(endTime, usageCount);
 
