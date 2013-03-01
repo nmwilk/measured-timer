@@ -57,8 +57,9 @@ public class ActiveTimerListView extends LinearLayout
         {
             lp = new ActiveTimerListView.LayoutParams(LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(
                     R.dimen.active_timer_height));
-            final int margin = getResources().getDimensionPixelSize(R.dimen.active_timer_margin);
-            lp.setMargins(margin, margin, margin, margin);
+            final int horizMargin = getResources().getDimensionPixelSize(R.dimen.active_timer_margin_horiz);
+            final int vertMargin = getResources().getDimensionPixelSize(R.dimen.active_timer_margin_vert);
+            lp.setMargins(horizMargin, vertMargin, horizMargin, vertMargin);
         }
 
         childHeight = 0;
