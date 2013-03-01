@@ -96,7 +96,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private TimerView dial;
     private ImageView mainBg;
     private ActiveTimerListView activeTimers;
-    private View activeTimersContainer;
 
     private Animation fadeInBackground;
     private Animation fadeOutBackground;
@@ -235,7 +234,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         dial.setOnSetValueChangedListener(this);
 
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
-        activeTimersContainer = findViewById(R.id.timer_list_container);
         
         activeTimers.setLayoutListener(new LayoutListener()
         {
@@ -284,12 +282,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     protected void checkRemainingSpaceInList()
     {
-        final int containerHeight = activeTimersContainer.getHeight();
-        final int listHeight = activeTimers.getTotalHeight();
+        final int containerHeight = activeTimers.getTotalHeight();
         final int itemHeight = activeTimers.getTimerHeight();
+        final int listHeight = activeTimers.getChildCount() * itemHeight;
         Log.d(Globals.TAG, "Containerheight: " + containerHeight + ", listHeight: " + listHeight + ", itemHeight: " + itemHeight);
         
-        spaceInList = activeTimersContainer.getHeight() == 0 ? true : (listHeight + itemHeight) < containerHeight;
+        spaceInList = containerHeight == 0 ? true : (listHeight + itemHeight) < containerHeight;
         dial.setEnabled(spaceInList);
     }
 

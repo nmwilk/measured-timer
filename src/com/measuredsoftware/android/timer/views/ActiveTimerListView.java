@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
@@ -219,7 +219,7 @@ public class ActiveTimerListView extends LinearLayout
     {
         int topMargin = 0;
         int bottomMargin = 0;
-        final FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams)getLayoutParams();
+        final RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)getLayoutParams();
         if (lp != null)
         {
             bottomMargin = lp.bottomMargin;

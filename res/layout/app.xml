@@ -35,20 +35,14 @@
             android:background="@drawable/dial_main"
             android:src="@drawable/dial_spinner" />
 
-        <FrameLayout
-            android:id="@+id/timer_list_container"
+        <com.measuredsoftware.android.timer.views.ActiveTimerListView
+            android:id="@+id/timer_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/timer"
+            android:layout_gravity="center_vertical"
             android:layout_marginBottom="@dimen/timers_list_margin"
-            android:layout_marginTop="@dimen/timers_list_margin" >
-
-            <com.measuredsoftware.android.timer.views.ActiveTimerListView
-                android:id="@+id/timer_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical" />
-        </FrameLayout>
+            android:layout_marginTop="@dimen/timers_list_margin" />
     </RelativeLayout>
 
 </RelativeLayout>
