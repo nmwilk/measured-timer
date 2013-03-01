@@ -2,6 +2,7 @@ package com.measuredsoftware.android.timer;
 
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.text.format.Time;
 
 /**
  * Place to put all global consts.
@@ -20,8 +21,8 @@ public class Globals
     /* the name of the font resource */
     private static final String FONT_STRING = "creative.ttf";
 
-    /** our time format */
-    public static final String TIME_FORMAT = "%H:%M:%S";
+    /* our time format */
+    private static final String TIME_FORMAT = "%H:%M:%S";
 
     /** standard logging tag */
     public static final String TAG = "MT";
@@ -46,6 +47,37 @@ public class Globals
     public static long getTime()
     {
         return System.currentTimeMillis();
+    }
+
+    private static final Time TIME = new Time();
+    
+    /**
+     * @param inSecs
+     * @return The remaining time formatted as HH:MM:SS.
+     */
+    public static String getFormattedTimeRemaining(final long inSecs)
+    {
+        final long seconds = (inSecs < 0) ? 0 : inSecs;
+        
+        final int secs = (int)(seconds % 60);
+        final int mins = (int)(seconds / 60) % 60;
+        final int hours = (int)(seconds / 3600);
+        
+        TIME.set(secs, mins, hours, 1, 1, 1999);
+        return TIME.format(TIME_FORMAT);
+    }
+    
+    /**
+     * @param secondsRemaining
+     * @return The end time formatted as HH:MM:SS.
+     */
+    public static String getFormattedTimeEnd(final long secondsRemaining)
+    {
+        final long seconds = (secondsRemaining < 0) ? 0 : secondsRemaining;
+        
+        TIME.set(getTime() + (seconds * 1000));
+        
+        return TIME.format(TIME_FORMAT);
     }
     
     /**

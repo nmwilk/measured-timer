@@ -42,6 +42,8 @@ import com.measuredsoftware.android.library2.utils.NetTools;
 import com.measuredsoftware.android.library2.utils.http.HttpTools;
 import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
+import com.measuredsoftware.android.timer.views.ActiveTimerListView;
+import com.measuredsoftware.android.timer.views.ActiveTimerView;
 import com.measuredsoftware.android.timer.views.TimerView;
 import com.measuredsoftware.android.timer.views.TopBar;
 
@@ -59,9 +61,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     /** the device asleep variable name for the intent */
     public static final String INTENT_VAR_DEVICE_ASLEEP = "deviceasleep";
 
-//    private static final int ALARM_ID = 103494;
     private static final int NOTIFICATION_ID = 1;
-    
+
     private static final long DAY_MS = 24 * 60 * 60 * 1000;
     private static final long UPLOAD_EVERY = 5 * DAY_MS;
 
@@ -92,6 +93,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private TimerView dial;
     private ImageView mainBg;
+    private ActiveTimerListView activeTimers;
 
     private Animation fadeInBackground;
     private Animation fadeOutBackground;
@@ -99,6 +101,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private TickThread tickThread = null;
 
     private boolean alarmRinging;
+    private boolean startedByIntent;
+    private boolean deviceAsleep;
 
     private SharedPreferences prefs;
     private final EndTimes endTimes = new EndTimes();
@@ -206,6 +210,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         notificationExDesc = getString(R.string.notification_exdesc);
 
         alarmRinging = false;
+        startedByIntent = false;
+        
         Intent intent = getIntent();
         if (intent != null)
         {
@@ -223,6 +229,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         dial = (TimerView) findViewById(R.id.timer);
         dial.setOnSetValueChangedListener(this);
 
+        activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
+
         final TopBar topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
 
@@ -234,6 +242,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         readEndTimesMS();
+
+        activeTimers.setCancelClickListener(this);
+        activeTimers.setAlarms(endTimes);
+        activeTimers.updateAlarms();
 
         // stats
         installDate = prefs.getString(PREFS_VAL_INSTALLDATE, "");
@@ -290,13 +302,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         stopTickThread();
         threadRun = false;
-    }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-        // Log.d("mtimer","onStart");
+        
+        startedByIntent = false;
     }
 
     @Override
@@ -305,8 +312,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onNewIntent(intent);
 
         alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
+        deviceAsleep = intent.getBooleanExtra(INTENT_VAR_DEVICE_ASLEEP, false);
+
         intent.removeExtra(INTENT_VAR_ALARM_RINGING);
         intent.removeExtra(INTENT_VAR_DEVICE_ASLEEP);
+
+        startedByIntent = deviceAsleep;
     }
 
     @Override
@@ -339,15 +350,36 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             case R.id.measured_button:
             {
                 writeToPrefs(TimerActivity.PREFS_VAL_CLICKEDMMS, ++clickedMMSCount);
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.otherswlink)));
+                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.otherswlink)));
 
                 startActivity(intent);
                 break;
             }
             case R.id.settings_button:
             {
-                Intent intent = new Intent(this, TimerPrefs.class);
+                final Intent intent = new Intent(this, TimerPrefs.class);
                 startActivityForResult(intent, SHOW_PREFERENCES_RESULT_CODE);
+                break;
+            }
+            case R.id.cancel_button:
+            {
+                final ActiveTimerView activeTimerView = (ActiveTimerView) view;
+
+                boolean shutdown = false;
+                if (!alarmRinging) break;
+                    
+                if (startedByIntent)
+                {
+                    shutdown = true;
+                }
+
+                stopAlarmRinging();
+                writeEndTimesToPrefs();
+
+                if (shutdown)
+                {
+                    finish();
+                }
                 break;
             }
         }
@@ -407,14 +439,15 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             editor.putInt(PREFS_VAL_USAGECOUNT, usageCount);
             editor.commit();
         }
-//        else
-//        {
-//            final Alarm lastAdded = endTimes.removeLast();
-//            Alarms.disableAlert(this, lastAdded.uid);
-//            removeNotificationItem(lastAdded.uid);
-//        }
+        // else
+        // {
+        // final Alarm lastAdded = endTimes.removeLast();
+        // Alarms.disableAlert(this, lastAdded.uid);
+        // removeNotificationItem(lastAdded.uid);
+        // }
 
         writeEndTimesToPrefs();
+        activeTimers.updateAlarms();
     }
 
     @Override
@@ -422,6 +455,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         firstChange = true;
         writeEndTimesToPrefs();
+        activeTimers.updateAlarms();
     }
 
     private void stopAlarmRinging()
@@ -430,9 +464,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         Alarms.disableExpiredAlerts(this, expiredAlarms);
         alarmRinging = false;
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        
+
         endTimes.removeExpiredTimers();
-        
+
         if (endTimes.count() == 0)
         {
             removeNotificationItem(nm);
@@ -440,6 +474,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         stopService(new Intent(Alarms.ALARM_ALERT_ACTION));
         dial.setAlarmIsRinging(false);
+
+        activeTimers.updateAlarms();
     }
 
     private void setupAlarm(final long endTime, final int uidAlarm)
@@ -466,7 +502,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private void removeNotificationItem(final NotificationManager nmanager)
     {
-        final NotificationManager nm = (nmanager == null) ? (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE) : nmanager;
+        final NotificationManager nm = (nmanager == null) ? (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)
+                : nmanager;
         nm.cancel(NOTIFICATION_ID);
     }
 

@@ -57,6 +57,22 @@ public class EndTimes
         {
             return String.format("%d=%d", uid, time);
         }
+        
+        /**
+         * @return The formatted countdown time
+         */
+        public String getCountdownTime()
+        {
+            return Globals.getFormattedTimeRemaining(this.time - Globals.getTime());
+        }
+
+        /**
+         * @return The formatted target time
+         */
+        public String getTargetTime()
+        {
+            return Globals.getFormattedTimeEnd(this.time - Globals.getTime());
+        }
 
         /**
          * @return true if the alarm is expired.

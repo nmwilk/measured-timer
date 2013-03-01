@@ -6,6 +6,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.measuredsoftware.android.timer.R;
+import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 
 /**
  * Item in the list showing an active timer.
@@ -15,31 +16,32 @@ import com.measuredsoftware.android.timer.R;
  */
 public class ActiveTimerView extends RelativeLayout
 {
-    private final int timerId;
+    private final Alarm alarm;
     
     private final TextView countdownTextView;
     
     /**
      * @param context
-     * @param timerId 
-     * @param countdownTime the formatted string for the countdown time.
-     * @param targetTime the formatted string for the target time.
+     * @param alarm The model.
+     * @param cancelClickListener The listener for the cancel button.
      */
-    public ActiveTimerView(final Context context, final int timerId, final String countdownTime, final String targetTime)
+    public ActiveTimerView(final Context context, final Alarm alarm, final View.OnClickListener cancelClickListener)
     {
         super(context);
         
-        this.timerId = timerId;
+        this.alarm = alarm;
         
         View.inflate(context, R.layout.active_timer, this);
         
         setBackgroundResource(R.drawable.timer_list_back);
         
         countdownTextView = (TextView)findViewById(R.id.countdown_time);
-        countdownTextView.setText(countdownTime);
+        countdownTextView.setText(alarm.getCountdownTime());
         
         final TextView targetTextView = (TextView)findViewById(R.id.target_time);
-        targetTextView.setText(targetTime);
+        targetTextView.setText(alarm.getTargetTime());
+        
+        findViewById(R.id.cancel).setOnClickListener(cancelClickListener);
     }
     
     /**
@@ -51,10 +53,10 @@ public class ActiveTimerView extends RelativeLayout
     }
 
     /**
-     * @return uid of the timer added.
+     * @return the model instance.
      */
-    public int getTimerId()
+    public Alarm getAlarm()
     {
-        return this.timerId;
+        return this.alarm;
     }
 }

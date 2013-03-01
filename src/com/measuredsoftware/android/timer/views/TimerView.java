@@ -49,10 +49,6 @@ public class TimerView extends RotatableImageView
     protected OnEventListener mListener;
     protected int mCurrentTimeSecs;
 
-    // for formatting
-    private Time mTimeLeft;
-    private Time mEndTime;
-
     private boolean mCountdownActive = false;
 
     private float mPrevAngle;
@@ -65,7 +61,6 @@ public class TimerView extends RotatableImageView
     private String msEndTime;
 
     private long mEndTimeMS;
-    private int mSecsLeftPrev;
 
     private boolean mSettingTime;
 
@@ -93,16 +88,12 @@ public class TimerView extends RotatableImageView
         super.setIncrement(1);
 
         mEndTimeMS = 0;
-        mSecsLeftPrev = -1;
         mCurrentTimeSecs = 0;
         mSettingTime = false;
         mAlarmRinging = false;
 
         final Drawable back = this.getBackground();
         if (back == null) throw new RuntimeException("Must supply a background to TimerView.");
-
-        mTimeLeft = new Time();
-        mEndTime = new Time();
 
         mCountdownActive = false;
 
@@ -248,7 +239,6 @@ public class TimerView extends RotatableImageView
         mEndTimeMS = endTimeMS;
         if (endTimeMS == 0)
         {
-            mSecsLeftPrev = -1;
             setSecsRemaining(0);
         }
         else
@@ -358,42 +348,35 @@ public class TimerView extends RotatableImageView
         this.setDigitalTimeTo(secs);
     }
 
-    private void setDigitalTimeTo(int value)
+    private void setDigitalTimeTo(final int seconds)
     {
-        if (value < 0) value = 0;
-        final int secs = (value % 60);
-        final int mins = (value / 60) % 60;
-        final int hours = (value / 3600);
-        mTimeLeft.set(secs, mins, hours, 1, 1, 1999);
-        setDigitalCountdown(mTimeLeft.format(Globals.TIME_FORMAT));
+        setDigitalCountdown(Globals.getFormattedTimeRemaining(seconds));
 
         if (!mCountdownActive)
         {
-            mEndTime.set(System.currentTimeMillis() + (value * 1000));
-            setDigitalEndTime(mEndTime.format(Globals.TIME_FORMAT));
+            setEndClockTo(seconds);
         }
     }
 
     /**
      * @param b
      */
-    public void setAlarmIsRinging(boolean b)
+    public void setAlarmIsRinging(final boolean b)
     {
         mAlarmRinging = b;
     }
 
-    private void setEndClockTo(int value)
+    private void setEndClockTo(final int seconds)
     {
-        mEndTime.set(System.currentTimeMillis() + (value * 1000));
-        setDigitalEndTime(mEndTime.format(Globals.TIME_FORMAT));
+        setDigitalEndTime(Globals.getFormattedTimeEnd(seconds));
     }
 
-    private void setDigitalCountdown(String format)
+    private void setDigitalCountdown(final String format)
     {
         this.msCountdownTime = format;
     }
 
-    private void setDigitalEndTime(String format)
+    private void setDigitalEndTime(final String format)
     {
         this.msEndTime = format;
     }
