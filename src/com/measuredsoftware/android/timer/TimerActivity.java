@@ -231,8 +231,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         mainBg = (ImageView) findViewById(R.id.back);
 
-        dial = (TimerView) findViewById(R.id.timer);
+        dial = (TimerView) findViewById(R.id.the_dial);
         dial.setOnSetValueChangedListener(this);
+        dial.setOnClickListener(this);
 
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
 
@@ -351,6 +352,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         intent.removeExtra(INTENT_VAR_DEVICE_ASLEEP);
 
         startedByIntent = deviceAsleep;
+
+        // if (alarmRinging)
+        {
+            dial.setAlarmIsRinging(alarmRinging);
+        }
     }
 
     @Override
@@ -396,6 +402,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 startActivityForResult(intent, SHOW_PREFERENCES_RESULT_CODE);
                 break;
             }
+            case R.id.the_dial:
+            {
+                if (!alarmRinging)
+                {
+                    break;
+                }
+            }
+                //$FALL-THROUGH$
             case R.id.active_timer_view:
             {
                 final ActiveTimerView activeTimerView = (ActiveTimerView) view;

@@ -1,10 +1,12 @@
 package com.measuredsoftware.android.timer.views;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -75,7 +77,13 @@ public class TimerView extends RotatableImageView
     private final Drawable touchGlow;
     private final Drawable touchArrow;
     private Drawable innerRing;
-    
+
+    private Drawable stopButton;
+
+    private final String stopText;
+    private Paint stopTextPaint;
+    private float stopTextX, stopTextY;
+
     private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
 
     /**
@@ -87,6 +95,8 @@ public class TimerView extends RotatableImageView
         super(context, attrs);
 
         eventListener = null;
+
+        setClickable(true);
 
         super.setIncrement(1);
 
@@ -104,6 +114,10 @@ public class TimerView extends RotatableImageView
 
         touchGlow = getResources().getDrawable(R.drawable.touch_glow);
         touchArrow = getResources().getDrawable(R.drawable.touch_arrow);
+
+        stopButton = getResources().getDrawable(R.drawable.stop_button);
+
+        stopText = getResources().getString(R.string.stop);
     }
 
     /**
@@ -123,7 +137,7 @@ public class TimerView extends RotatableImageView
     {
         textPaintTarget.setColor(colour);
     }
-    
+
     @Override
     public void setEnabled(final boolean enabled)
     {
@@ -131,16 +145,20 @@ public class TimerView extends RotatableImageView
 
         updateVisibleStates();
     }
-    
+
     @Override
-    public boolean onTouchEvent(MotionEvent event)
+    public boolean onTouchEvent(final MotionEvent event)
     {
         if (!isEnabled()) return true;
 
         // don't allow moving of timer if ringing
-        if (alarmRinging) return true;
+        if (alarmRinging)
+        {
+            return super.onTouchEvent(event);
+        }
 
         final boolean b = super.onTouchEvent(event);
+
         // parent handled it?
         if (b) return true;
 
@@ -237,7 +255,7 @@ public class TimerView extends RotatableImageView
 
         return true;
     }
-    
+
     private void updateCountdownTimeFilter()
     {
         textPaintCountdown.setColorFilter(settingTime ? null : textDimmer);
@@ -272,7 +290,7 @@ public class TimerView extends RotatableImageView
 
         this.invalidate();
     }
-    
+
     private void setCountdownActive(final boolean b)
     {
         countdownAction = b;
@@ -295,24 +313,33 @@ public class TimerView extends RotatableImageView
         super.onDraw(canvas);
 
         initialiseOnFirstDraw();
-        
+
         innerRing.draw(canvas);
-        
+
         updateCountdownTimeFilter();
 
         // draw digital times
         canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, textPaintCountdown);
         canvas.drawText(msEndTime, endtimePosX, endtimePosY, textPaintTarget);
 
-//        if (mSettingTime)
-//        {
-//            CoordTools.getVelocityFromAngleAndSpeed(mAngle, 200, tempPoint);
-//            final int left = Math.round(mCentreX + tempPoint.x) - touchGlow.getIntrinsicWidth()/2;
-//            final int top = Math.round(mCentreY - tempPoint.y) - touchGlow.getIntrinsicHeight()/2;
-//            touchGlow.setBounds(left, top, left + touchGlow.getIntrinsicWidth(), top + touchGlow.getIntrinsicHeight());
-//            
-//            touchGlow.draw(canvas);
-//        }
+        if (alarmRinging)
+        {
+            stopButton.draw(canvas);
+            canvas.drawText(stopText, stopTextX, stopTextY, stopTextPaint);
+        }
+
+        // if (mSettingTime)
+        // {
+        // CoordTools.getVelocityFromAngleAndSpeed(mAngle, 200, tempPoint);
+        // final int left = Math.round(mCentreX + tempPoint.x) -
+        // touchGlow.getIntrinsicWidth()/2;
+        // final int top = Math.round(mCentreY - tempPoint.y) -
+        // touchGlow.getIntrinsicHeight()/2;
+        // touchGlow.setBounds(left, top, left + touchGlow.getIntrinsicWidth(),
+        // top + touchGlow.getIntrinsicHeight());
+        //
+        // touchGlow.draw(canvas);
+        // }
     }
 
     private void initialiseOnFirstDraw()
@@ -321,22 +348,44 @@ public class TimerView extends RotatableImageView
         {
             innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
 
-            final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
-            final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
+            {
+                final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
+                final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
+                innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(),
+                        top + innerRing.getIntrinsicHeight());
+            }
 
-            innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
+            {
+                final int width = stopButton.getIntrinsicWidth();
+                final int height = stopButton.getIntrinsicHeight();
+                final int left = (getWidth() - stopButton.getIntrinsicWidth()) / 2;
+                final int top = (getHeight() - stopButton.getIntrinsicHeight()) / 2;
+                stopButton.setBounds(left, top, left + width, top + height);
+            }
+
         }
-        
-        if (textPaintCountdown == null) createPaints();
+
+        if (textPaintCountdown == null)
+        {
+            createPaints();
+
+            stopTextPaint = TimerTextView.stylePaint(TextType.COUNTDOWN, getWidth());
+            stopTextPaint.setColor(0xFFFFFFFF);
+            stopTextPaint.setShadowLayer(stopTextPaint.getTextSize() / 6, 0, 0, 0xFFFFFFFF);
+            stopTextPaint.setColorFilter(new PorterDuffColorFilter(0xFFFFFFFF, Mode.SRC_IN));
+
+            stopTextX = getWidth() / 2;
+            stopTextY = (getHeight() / 2) + (stopTextPaint.getTextSize() / 4);
+        }
 
         countdownTimePosX = getWidth() / 2;
         countdownTimePosY = getHeight() / 2;
         endtimePosX = countdownTimePosX;
         endtimePosY = countdownTimePosY + Math.round(textPaintCountdown.getTextSize());
-        
+
         updateVisibleStates();
     }
-    
+
     private void updateVisibleStates()
     {
         if (innerRing != null)
