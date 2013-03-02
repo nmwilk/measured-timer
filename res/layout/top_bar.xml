@@ -22,5 +22,13 @@
         android:background="@null"
         android:scaleType="center"
         android:src="@drawable/mslogo_icon" />
+    
+    <ImageView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/top_bar_image"
+        android:layout_centerInParent="true"
+        android:background="@null"
+        android:scaleType="center"/>
 
 </merge>

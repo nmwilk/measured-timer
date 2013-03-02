@@ -1,6 +1,5 @@
 package com.measuredsoftware.android.timer.views;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -258,7 +257,10 @@ public class TimerView extends RotatableImageView
 
     private void updateCountdownTimeFilter()
     {
-        textPaintCountdown.setColorFilter(settingTime ? null : textDimmer);
+        textPaintCountdown.setAlpha(settingTime ? 255 : 100);
+        final int shadowColour = settingTime ? 0x7F000000 : 0x3F000000;
+        TimerTextView.styleShadow(textPaintCountdown, textPaintCountdown.getTextSize(), shadowColour);
+//        textPaintCountdown.setColorFilter(settingTime ? null : textDimmer);
     }
 
     private void setEndTime(final long ms)

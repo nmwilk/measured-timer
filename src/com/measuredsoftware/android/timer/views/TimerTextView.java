@@ -51,13 +51,32 @@ public class TimerTextView extends TextView
         final float textSize = size / (type == TextType.COUNTDOWN ? 9f : 11f);
 
         final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        stylePaint(paint, type, textSize);
+        return paint;
+    }
+
+    /**
+     * @param paint
+     * @param type
+     * @param size
+     */
+    public static void stylePaint(final Paint paint, final TextType type, final float size)
+    {
         paint.setTypeface(Globals.getFont());
-        paint.setTextSize(textSize);
+        paint.setTextSize(size);
         paint.setTextAlign(Align.CENTER);
         paint.setColor(Globals.getTextColor(type));
-        paint.setShadowLayer(textSize / 18f, 0, textSize / 20f, 0x7F000000);
-
-        return paint;
+        styleShadow(paint, size, 0x7F000000);
+    }
+    
+    /**
+     * @param paint
+     * @param textSize
+     * @param colour
+     */
+    public static void styleShadow(final Paint paint, final float textSize, final int colour)
+    {
+        paint.setShadowLayer(textSize / 18f, 0, textSize / 20f, colour);
     }
 
     /**

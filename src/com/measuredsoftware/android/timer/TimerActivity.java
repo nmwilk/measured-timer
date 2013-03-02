@@ -233,7 +233,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         dial = (TimerView) findViewById(R.id.the_dial);
         dial.setOnSetValueChangedListener(this);
-        dial.setOnClickListener(this);
+        
 
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
 
