@@ -12,6 +12,9 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -36,6 +39,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.measuredsoftware.android.library2.utils.DateTools;
@@ -46,6 +51,7 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 import com.measuredsoftware.android.timer.views.ActiveTimerListView;
 import com.measuredsoftware.android.timer.views.ActiveTimerListView.LayoutListener;
 import com.measuredsoftware.android.timer.views.ActiveTimerView;
+import com.measuredsoftware.android.timer.views.StopButton;
 import com.measuredsoftware.android.timer.views.TimerView;
 import com.measuredsoftware.android.timer.views.TopBar;
 
@@ -96,6 +102,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private TimerView dial;
     private ImageView mainBg;
     private ActiveTimerListView activeTimers;
+    private StopButton stopButton;
 
     private Animation fadeInBackground;
     private Animation fadeOutBackground;
@@ -234,7 +241,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         dial = (TimerView) findViewById(R.id.the_dial);
         dial.setOnSetValueChangedListener(this);
         
-
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
 
         activeTimers.setLayoutListener(new LayoutListener()
@@ -249,6 +255,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         final TopBar topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
 
+        stopButton = (StopButton)findViewById(R.id.stop_button);
+        stopButton.setOnClickListener(this);
+        
         tickThread = null;
 
         firstChange = true;
@@ -318,7 +327,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         uploadStats = prefs.getBoolean(PREFS_VAL_SENDSTATS, true);
         showNotification = prefs.getBoolean(PREFS_VAL_USE_NOTIFICATIONS, true);
     }
-
+    
     @Override
     protected void onDestroy()
     {
@@ -355,6 +364,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         // if (alarmRinging)
         {
+            showStopButton();
             dial.setAlarmIsRinging(alarmRinging);
         }
     }
@@ -370,7 +380,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         if (alarmRinging && endTimes.timersActive())
         {
-            showStopBuzzerButton();
+            showStopButton();
             dial.setAlarmIsRinging(true);
         }
 
@@ -402,7 +412,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 startActivityForResult(intent, SHOW_PREFERENCES_RESULT_CODE);
                 break;
             }
-            case R.id.the_dial:
+            case R.id.stop_button:
             {
                 if (!alarmRinging)
                 {
@@ -412,10 +422,13 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 //$FALL-THROUGH$
             case R.id.active_timer_view:
             {
-                final ActiveTimerView activeTimerView = (ActiveTimerView) view;
+                hideStopButton();
 
-                final Alarm alarm = activeTimerView.getAlarm();
-                alarm.ms = 0;
+                final Collection<Alarm> expired = endTimes.getExpiredAlarms();
+                for(final Alarm alarm : expired)
+                {
+                    alarm.ms = 0;
+                }
 
                 boolean shutdown = false;
                 if (alarmRinging && startedByIntent)
@@ -610,9 +623,36 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         }
     }
 
-    private void showStopBuzzerButton()
+    private void showStopButton()
     {
-        /* TODO: */
+        if (stopButton.getVisibility() == View.INVISIBLE)
+        {
+            stopButton.setVisibility(View.VISIBLE);
+            final ObjectAnimator fader = ObjectAnimator.ofFloat(stopButton, "alpha", 0f, 1f);
+            fader.setDuration(100);
+            fader.setInterpolator(new DecelerateInterpolator());
+            fader.start();
+        }
+    }
+    
+    private void hideStopButton()
+    {
+        if (stopButton.getVisibility() == View.VISIBLE)
+        {
+            final ObjectAnimator fader = ObjectAnimator.ofFloat(stopButton, "alpha", 1f, 0f);
+            fader.setDuration(100);
+            fader.setInterpolator(new DecelerateInterpolator());
+            fader.addListener(new AnimatorListenerAdapter()
+            {
+               @Override
+                public void onAnimationEnd(Animator animation)
+                {
+                    super.onAnimationEnd(animation);
+                    stopButton.setVisibility(View.INVISIBLE);
+                } 
+            });
+            fader.start();
+        }
     }
 
     private void fadeOutBackground()

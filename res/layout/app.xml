@@ -35,6 +35,26 @@
             android:background="@drawable/dial_main"
             android:src="@drawable/dial_spinner" />
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/stop_container_height"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/timer_margin"
+            android:background="@null" >
+
+            <com.measuredsoftware.android.timer.views.StopButton
+                android:id="@+id/stop_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stop_button_height"
+                android:layout_gravity="center"
+                android:background="@drawable/stop_button_back"
+                android:gravity="center"
+                android:text="@string/stop"
+                android:textColor="@color/tint"
+                android:textSize="@dimen/stop_button_text_size"
+                android:visibility="invisible" />
+        </FrameLayout>
+
         <com.measuredsoftware.android.timer.views.ActiveTimerListView
             android:id="@+id/timer_list"
             android:layout_width="match_parent"

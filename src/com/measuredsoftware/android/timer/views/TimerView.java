@@ -77,8 +77,6 @@ public class TimerView extends RotatableImageView
     private final Drawable touchArrow;
     private Drawable innerRing;
 
-    private Drawable stopButton;
-
     private final String stopText;
     private Paint stopTextPaint;
     private float stopTextX, stopTextY;
@@ -113,8 +111,6 @@ public class TimerView extends RotatableImageView
 
         touchGlow = getResources().getDrawable(R.drawable.touch_glow);
         touchArrow = getResources().getDrawable(R.drawable.touch_arrow);
-
-        stopButton = getResources().getDrawable(R.drawable.stop_button);
 
         stopText = getResources().getString(R.string.stop);
     }
@@ -260,7 +256,7 @@ public class TimerView extends RotatableImageView
         textPaintCountdown.setAlpha(settingTime ? 255 : 100);
         final int shadowColour = settingTime ? 0x7F000000 : 0x3F000000;
         TimerTextView.styleShadow(textPaintCountdown, textPaintCountdown.getTextSize(), shadowColour);
-//        textPaintCountdown.setColorFilter(settingTime ? null : textDimmer);
+        // textPaintCountdown.setColorFilter(settingTime ? null : textDimmer);
     }
 
     private void setEndTime(final long ms)
@@ -324,12 +320,6 @@ public class TimerView extends RotatableImageView
         canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, textPaintCountdown);
         canvas.drawText(msEndTime, endtimePosX, endtimePosY, textPaintTarget);
 
-        if (alarmRinging)
-        {
-            stopButton.draw(canvas);
-            canvas.drawText(stopText, stopTextX, stopTextY, stopTextPaint);
-        }
-
         // if (mSettingTime)
         // {
         // CoordTools.getVelocityFromAngleAndSpeed(mAngle, 200, tempPoint);
@@ -350,21 +340,9 @@ public class TimerView extends RotatableImageView
         {
             innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
 
-            {
-                final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
-                final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
-                innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(),
-                        top + innerRing.getIntrinsicHeight());
-            }
-
-            {
-                final int width = stopButton.getIntrinsicWidth();
-                final int height = stopButton.getIntrinsicHeight();
-                final int left = (getWidth() - stopButton.getIntrinsicWidth()) / 2;
-                final int top = (getHeight() - stopButton.getIntrinsicHeight()) / 2;
-                stopButton.setBounds(left, top, left + width, top + height);
-            }
-
+            final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
+            final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
+            innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
         }
 
         if (textPaintCountdown == null)

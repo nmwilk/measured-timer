@@ -13,4 +13,9 @@
     <dimen name="active_timer_margin_horiz">6dp</dimen>
     <dimen name="target_time_button_margin_left">4dp</dimen>
     <dimen name="cancel_button_margin_right">0dp</dimen>
+    
+    <!-- same height as dial image -->
+    <dimen name="stop_container_height">584px</dimen>
+    <dimen name="stop_button_height">260px</dimen>
+    <dimen name="stop_button_text_size">100px</dimen>
 </resources>
