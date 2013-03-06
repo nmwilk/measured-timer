@@ -4,6 +4,8 @@ import java.lang.ref.WeakReference;
 
 import android.content.Context;
 import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Handler;
@@ -14,6 +16,8 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.widget.Button;
 
+import com.measuredsoftware.android.timer.ColorFilterTools;
+import com.measuredsoftware.android.timer.Colourable;
 import com.measuredsoftware.android.timer.Globals;
 
 /**
@@ -22,7 +26,7 @@ import com.measuredsoftware.android.timer.Globals;
  * @author neil
  * 
  */
-public class StopButton extends Button
+public class StopButton extends Button implements Colourable
 {
     private static class HighlightHandler extends Handler
     {
@@ -42,6 +46,7 @@ public class StopButton extends Button
     
     private final ColorFilter highlight = new PorterDuffColorFilter(0x1FFFFFFF, PorterDuff.Mode.SRC_ATOP);
     private static HighlightHandler handler;
+    private final ColorMatrix hueMatrix = new ColorMatrix();
     
     /**
      * @param context
@@ -71,5 +76,14 @@ public class StopButton extends Button
         }
         
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void onColourSet(final float colour)
+    {
+        ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
+        final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
+        getPaint().setColorFilter(filter);
+        invalidate();
     }
 }

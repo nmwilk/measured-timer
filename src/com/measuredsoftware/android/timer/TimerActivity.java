@@ -31,16 +31,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.measuredsoftware.android.library2.utils.DateTools;
@@ -61,7 +62,7 @@ import com.measuredsoftware.android.timer.views.TopBar;
  * @author neil
  * 
  */
-public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener
+public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable
 {
     /** the alarm ringing variable name for the intent */
     public static final String INTENT_VAR_ALARM_RINGING = "alarmringing";
@@ -104,6 +105,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private ActiveTimerListView activeTimers;
     private StopButton stopButton;
 
+    private final List<Colourable> colourableViews = new ArrayList<Colourable>();
+
     private Animation fadeInBackground;
     private Animation fadeOutBackground;
 
@@ -134,6 +137,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         {
             parent.get().getDial().updateNowTime();
             parent.get().getTimerList().tickAlarms();
+
+            final long time = SystemClock.uptimeMillis() % 5000;
+            parent.get().onColourSet((float) time / 5000.0f);
         }
     }
 
@@ -240,7 +246,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         dial = (TimerView) findViewById(R.id.the_dial);
         dial.setOnSetValueChangedListener(this);
-        
+
         activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
 
         activeTimers.setLayoutListener(new LayoutListener()
@@ -255,9 +261,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         final TopBar topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
 
-        stopButton = (StopButton)findViewById(R.id.stop_button);
+        stopButton = (StopButton) findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
-        
+
         tickThread = null;
 
         firstChange = true;
@@ -288,6 +294,25 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             editor.putString(PREFS_VAL_INSTALLDATE, installDate);
             editor.putLong(PREFS_VAL_LASTUPLOAD, lastStatsUpload);
             editor.commit();
+        }
+        
+        buildColourableList((ViewGroup) findViewById(R.id.container_view));
+    }
+
+    private void buildColourableList(final ViewGroup container)
+    {
+        for (int i = 0; i < container.getChildCount(); i++)
+        {
+            final View child = container.getChildAt(i);
+            if (child instanceof Colourable)
+            {
+                colourableViews.add((Colourable) child);
+            }
+            
+            if (child instanceof ViewGroup)
+            {
+                buildColourableList((ViewGroup)child);
+            }
         }
     }
 
@@ -327,7 +352,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         uploadStats = prefs.getBoolean(PREFS_VAL_SENDSTATS, true);
         showNotification = prefs.getBoolean(PREFS_VAL_USE_NOTIFICATIONS, true);
     }
-    
+
     @Override
     protected void onDestroy()
     {
@@ -373,7 +398,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     protected void onResume()
     {
         super.onResume();
-
+        
         startTickThread();
 
         threadRun = true;
@@ -419,15 +444,23 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                     break;
                 }
             }
-                //$FALL-THROUGH$
+            //$FALL-THROUGH$
             case R.id.active_timer_view:
             {
                 hideStopButton();
 
-                final Collection<Alarm> expired = endTimes.getExpiredAlarms();
-                for(final Alarm alarm : expired)
+                if (view instanceof ActiveTimerView)
                 {
+                    final Alarm alarm = ((ActiveTimerView) view).getAlarm();
                     alarm.ms = 0;
+                }
+                else
+                {
+                    final Collection<Alarm> expired = endTimes.getExpiredAlarms();
+                    for (final Alarm alarm : expired)
+                    {
+                        alarm.ms = 0;
+                    }
                 }
 
                 boolean shutdown = false;
@@ -634,7 +667,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             fader.start();
         }
     }
-    
+
     private void hideStopButton()
     {
         if (stopButton.getVisibility() == View.VISIBLE)
@@ -644,12 +677,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             fader.setInterpolator(new DecelerateInterpolator());
             fader.addListener(new AnimatorListenerAdapter()
             {
-               @Override
+                @Override
                 public void onAnimationEnd(Animator animation)
                 {
                     super.onAnimationEnd(animation);
                     stopButton.setVisibility(View.INVISIBLE);
-                } 
+                }
             });
             fader.start();
         }
@@ -836,6 +869,15 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         public void unpause()
         {
             mPaused = false;
+        }
+    }
+
+    @Override
+    public void onColourSet(final float colour)
+    {
+        for (final Colourable view : colourableViews)
+        {
+            view.onColourSet(colour);
         }
     }
 }

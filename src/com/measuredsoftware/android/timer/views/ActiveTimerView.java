@@ -2,6 +2,8 @@ package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
 import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.view.MotionEvent;
@@ -9,6 +11,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.measuredsoftware.android.timer.ColorFilterTools;
+import com.measuredsoftware.android.timer.Colourable;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 
@@ -18,58 +22,63 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
  * @author neil
  * 
  */
-public class ActiveTimerView extends RelativeLayout
+public class ActiveTimerView extends RelativeLayout implements Colourable
 {
     private final Alarm alarm;
     private final ColorFilter dimmer;
-    
+
     private final TextView countdownTextView;
-    
+    private final TextView targetTextView;
+    private final ColorMatrix hueMatrix = new ColorMatrix();
+
     /**
      * @param context
-     * @param alarm The model.
-     * @param cancelClickListener The listener for the cancel button.
+     * @param alarm
+     *            The model.
+     * @param cancelClickListener
+     *            The listener for the cancel button.
      */
     public ActiveTimerView(final Context context, final Alarm alarm, final View.OnClickListener cancelClickListener)
     {
         super(context);
-        
+
         this.alarm = alarm;
-        
+
         View.inflate(context, R.layout.active_timer, this);
-        
+
         setBackgroundResource(R.drawable.timer_list_back);
-        
-        countdownTextView = (TextView)findViewById(R.id.countdown_time);
+
+        countdownTextView = (TextView) findViewById(R.id.countdown_time);
         countdownTextView.setText(alarm.getCountdownTime());
-        
-        final TextView targetTextView = (TextView)findViewById(R.id.target_time);
+
+        targetTextView = (TextView) findViewById(R.id.target_time);
         targetTextView.setText(alarm.getTargetTime());
         targetTextView.setTextColor(getResources().getColor(R.color.tint));
-        
+
         dimmer = new PorterDuffColorFilter(0x30FFFFFF, PorterDuff.Mode.SRC_ATOP);
-        
+
         setOnClickListener(cancelClickListener);
-        
+
         setId(R.id.active_timer_view);
     }
-    
+
     @Override
     public boolean onTouchEvent(final MotionEvent event)
     {
         final boolean b = super.onTouchEvent(event);
-        
-        final int action = event.getAction(); 
+
+        final int action = event.getAction();
         if (action != MotionEvent.ACTION_MOVE)
         {
             getBackground().setColorFilter(action == MotionEvent.ACTION_DOWN ? dimmer : null);
         }
-        
+
         return b;
     }
-    
+
     /**
-     * @param time the formatted string.
+     * @param time
+     *            the formatted string.
      */
     public void setCountdownTime(final String time)
     {
@@ -85,7 +94,7 @@ public class ActiveTimerView extends RelativeLayout
     }
 
     /**
-     * Update the countdown time. 
+     * Update the countdown time.
      */
     public void updateCountdown()
     {
@@ -93,5 +102,14 @@ public class ActiveTimerView extends RelativeLayout
         {
             countdownTextView.setText(alarm.getCountdownTime());
         }
+    }
+
+    @Override
+    public void onColourSet(final float colour)
+    {
+        ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
+        final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
+        targetTextView.getPaint().setColorFilter(filter);
+        targetTextView.invalidate();
     }
 }

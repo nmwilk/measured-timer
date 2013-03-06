@@ -5,11 +5,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.measuredsoftware.android.timer.Colourable;
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.data.EndTimes;
@@ -21,7 +21,7 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
  * @author neil
  * 
  */
-public class ActiveTimerListView extends LinearLayout
+public class ActiveTimerListView extends LinearLayout implements Colourable
 {
     /** */
     public interface LayoutListener
@@ -283,5 +283,18 @@ public class ActiveTimerListView extends LinearLayout
             topMargin = lp.topMargin;
         }
         return getHeight() + topMargin + bottomMargin;
+    }
+    
+    @Override
+    public void onColourSet(final float colour)
+    {
+        for(int i=0; i < getChildCount(); i++)
+        {
+            final View child = getChildAt(i);
+            if (child instanceof Colourable)
+            {
+                ((Colourable)child).onColourSet(colour);
+            }
+        }
     }
 }
