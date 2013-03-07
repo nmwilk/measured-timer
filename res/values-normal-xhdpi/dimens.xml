@@ -18,4 +18,6 @@
     <dimen name="stop_container_height">584px</dimen>
     <dimen name="stop_button_height">260px</dimen>
     <dimen name="stop_button_text_size">100px</dimen>
+    
+    <dimen name="hue_slider_margin">20px</dimen>
 </resources>

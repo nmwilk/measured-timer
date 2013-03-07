@@ -22,19 +22,20 @@ public class HueChooser
 
     /** 
      * @param anchor View to anchor the popup below.
+     * @param currentValue 
      * @param dismissListener 
      * @param seekListener 
      */
-    public HueChooser(final View anchor, final OnDismissListener dismissListener, final SeekBar.OnSeekBarChangeListener seekListener)
+    public HueChooser(final View anchor, final float currentValue, final OnDismissListener dismissListener, final SeekBar.OnSeekBarChangeListener seekListener)
     {
-        final View contents = new HueChooserView(anchor.getContext(), seekListener);
+        final View contents = new HueChooserView(anchor.getContext(), currentValue, seekListener);
         
         popup = new GeneralPopup(contents, anchor, dismissListener);
     }
     
     private class HueChooserView extends FrameLayout
     {
-        public HueChooserView(final Context context, final SeekBar.OnSeekBarChangeListener seekListener)
+        public HueChooserView(final Context context, final float currentValue, final SeekBar.OnSeekBarChangeListener seekListener)
         {
             super(context);
             
@@ -43,8 +44,12 @@ public class HueChooser
             final SeekBar seekBar = new SeekBar(context);
             seekBar.setOnSeekBarChangeListener(seekListener);
             seekBar.setMax(SEEK_MAX);
+            seekBar.setProgress(Math.round(currentValue * SEEK_MAX));
             
-            addView(seekBar, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            final LayoutParams lp = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            final int margin = getResources().getDimensionPixelSize(R.dimen.hue_slider_margin);
+            lp.setMargins(margin, margin, margin, margin);
+            addView(seekBar, lp);
         }
     }
 

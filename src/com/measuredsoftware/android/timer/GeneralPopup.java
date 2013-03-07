@@ -1,5 +1,6 @@
 package com.measuredsoftware.android.timer;
 
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
@@ -39,8 +40,7 @@ public class GeneralPopup extends PopupWindow
         setHeight(height);
 
         setOnDismissListener(dismissListener);
-
-        setBackgroundDrawable(null);
+        setBackgroundDrawable(new ColorDrawable(0));
         setOutsideTouchable(true);
         setFocusable(true);
         showAsDropDown(anchor);

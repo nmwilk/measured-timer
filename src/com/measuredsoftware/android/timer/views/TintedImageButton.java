@@ -59,7 +59,7 @@ public class TintedImageButton extends ImageButton
     
     private static void desatMatrix(final ColorMatrix cm)
     {
-        ColorFilterTools.adjustSaturation(cm, -70);
+        ColorFilterTools.adjustSaturation(cm, -90);
     }
 
     private static ColorFilter createFilter(final int type)

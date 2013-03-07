@@ -64,7 +64,8 @@ import com.measuredsoftware.android.timer.views.TopBar;
  * @author neil
  * 
  */
-public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable, OnSeekBarChangeListener, OnDismissListener
+public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable,
+        OnSeekBarChangeListener, OnDismissListener
 {
     /** the alarm ringing variable name for the intent */
     public static final String INTENT_VAR_ALARM_RINGING = "alarmringing";
@@ -95,7 +96,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private static final String PREFS_VAL_USAGECOUNT = "timercount";
 
     private static final String PREFS_VAL_LASTUPLOAD = "laststatsupload";
-    
+
     private static final String PREFS_VAL_HUE = "hue";
 
     private static final String STATS_URL = "https://www.measuredsoftware.co.uk/timer/anonstats.php";
@@ -103,7 +104,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private static String notificationTitle;
     private static String notificationExTitle;
     private static String notificationExDesc;
-    
+
     private float currentHue;
 
     private TimerView dial;
@@ -119,7 +120,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private Animation fadeOutBackground;
 
     private TickThread tickThread = null;
-    
+
     private HueChooser hueChooser;
 
     private boolean alarmRinging;
@@ -267,14 +268,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
-        
+
         hueButton = topBar.findViewById(R.id.hue_button);
 
         stopButton = (StopButton) findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
-        
-//        final View stopContainer = findViewById(R.id.stop_button_container);
-//        stopContainer.setOnTouchListener(this);
+
+        // final View stopContainer = findViewById(R.id.stop_button_container);
+        // stopContainer.setOnTouchListener(this);
 
         tickThread = null;
 
@@ -308,7 +309,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             editor.putLong(PREFS_VAL_LASTUPLOAD, lastStatsUpload);
             editor.commit();
         }
-        
+
         buildColourableList((ViewGroup) findViewById(R.id.container_view));
     }
 
@@ -321,10 +322,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             {
                 colourableViews.add((Colourable) child);
             }
-            
+
             if (child instanceof ViewGroup && !(child instanceof ActiveTimerListView))
             {
-                buildColourableList((ViewGroup)child);
+                buildColourableList((ViewGroup) child);
             }
         }
     }
@@ -390,6 +391,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         super.onNewIntent(intent);
 
+        Log.d(Globals.TAG, "onNewIntent");
+
         alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
         deviceAsleep = intent.getBooleanExtra(INTENT_VAR_DEVICE_ASLEEP, false);
 
@@ -409,9 +412,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     protected void onResume()
     {
         super.onResume();
-        
+
+        Log.d(Globals.TAG, "onResume");
+
         onColourSet(currentHue);
-        
+
         startTickThread();
 
         threadRun = true;
@@ -422,14 +427,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             showStopButton();
             dial.setAlarmIsRinging(true);
         }
-        
+
         closeActiveHueChooser();
 
         dial.setEnabled(spaceInList);
 
         startNetThread();
     }
-    
+
     private void closeActiveHueChooser()
     {
         if (hueChooser != null)
@@ -437,7 +442,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             hueChooser.close();
             hueChooser = null;
         }
-        
+
         hueButton.setSelected(false);
     }
 
@@ -465,7 +470,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 break;
             }
             case R.id.hue_button:
-                hueChooser = new HueChooser(topBar, this, this);
+                if (hueChooser == null)
+                {
+                    hueChooser = new HueChooser(topBar, currentHue, this, this);
+                }
+                else
+                {
+                    onDismiss();
+                }
                 break;
             case R.id.stop_button:
             {
@@ -677,8 +689,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private void startTickThread()
     {
-        tickThread = new TickThread();
-        tickThread.start();
+        if (tickThread == null)
+        {
+            tickThread = new TickThread();
+            tickThread.start();
+        }
     }
 
     private void stopTickThread()
@@ -918,14 +933,20 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     @Override
     public void onDismiss()
     {
-        
+        hueChooser.close();
+        hueChooser = null;
     }
 
+    private int lastProgress = -1;
     @Override
     public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser)
     {
-        currentHue = progress / (float)HueChooser.SEEK_MAX;
-        onColourSet(currentHue);
+        if (lastProgress != progress)
+        {
+            lastProgress = progress;
+            currentHue = progress / (float) HueChooser.SEEK_MAX;
+            onColourSet(currentHue);
+        }
     }
 
     @Override
