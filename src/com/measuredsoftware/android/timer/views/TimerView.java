@@ -86,6 +86,8 @@ public class TimerView extends RotatableImageView implements Colourable
     private float stopTextX, stopTextY;
 
     private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
+
+    private float cachedHue = 0f;
     
 //    private final ColorMatrix hueMatrix = new ColorMatrix();
 
@@ -342,6 +344,8 @@ public class TimerView extends RotatableImageView implements Colourable
 
     private void initialiseOnFirstDraw()
     {
+        boolean setColour = false;
+        
         if (innerRing == null)
         {
             innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
@@ -349,6 +353,8 @@ public class TimerView extends RotatableImageView implements Colourable
             final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
             final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
             innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
+            
+            if (cachedHue != 0f) setColour = true;
         }
 
         if (textPaintCountdown == null)
@@ -362,6 +368,13 @@ public class TimerView extends RotatableImageView implements Colourable
 
             stopTextX = getWidth() / 2;
             stopTextY = (getHeight() / 2) + (stopTextPaint.getTextSize() / 4);
+
+            if (cachedHue != 0f) setColour = true;
+        }
+        
+        if (setColour)
+        {
+            onColourSet(cachedHue);
         }
 
         countdownTimePosX = getWidth() / 2;
@@ -440,10 +453,18 @@ public class TimerView extends RotatableImageView implements Colourable
     @Override
     public void onColourSet(final float colour)
     {
-        final ColorMatrix hueMatrix = new ColorMatrix();
-        ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
-        final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
-        innerRing.setColorFilter(filter);
-        textPaintTarget.setColorFilter(filter);
+        // not initialised? save value for when it is.
+        if (innerRing == null)
+        {
+            cachedHue = colour;
+        }
+        else
+        {
+            final ColorMatrix hueMatrix = new ColorMatrix();
+            ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
+            final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
+            innerRing.setColorFilter(filter);
+            textPaintTarget.setColorFilter(filter);
+        }
     }
 }

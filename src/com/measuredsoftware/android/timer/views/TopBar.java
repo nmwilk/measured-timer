@@ -31,5 +31,6 @@ public class TopBar extends RelativeLayout
     {
         findViewById(R.id.settings_button).setOnClickListener(listener);
         findViewById(R.id.measured_button).setOnClickListener(listener);
+        findViewById(R.id.hue_button).setOnClickListener(listener);
     }
 }

@@ -31,13 +31,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -45,6 +42,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.measuredsoftware.android.library2.utils.DateTools;
 import com.measuredsoftware.android.library2.utils.NetTools;
@@ -64,7 +64,7 @@ import com.measuredsoftware.android.timer.views.TopBar;
  * @author neil
  * 
  */
-public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable, OnTouchListener
+public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable, OnSeekBarChangeListener, OnDismissListener
 {
     /** the alarm ringing variable name for the intent */
     public static final String INTENT_VAR_ALARM_RINGING = "alarmringing";
@@ -95,17 +95,23 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private static final String PREFS_VAL_USAGECOUNT = "timercount";
 
     private static final String PREFS_VAL_LASTUPLOAD = "laststatsupload";
+    
+    private static final String PREFS_VAL_HUE = "hue";
 
     private static final String STATS_URL = "https://www.measuredsoftware.co.uk/timer/anonstats.php";
 
     private static String notificationTitle;
     private static String notificationExTitle;
     private static String notificationExDesc;
+    
+    private float currentHue;
 
     private TimerView dial;
     private ImageView mainBg;
     private ActiveTimerListView activeTimers;
     private StopButton stopButton;
+    private TopBar topBar;
+    private View hueButton;
 
     private final List<Colourable> colourableViews = new ArrayList<Colourable>();
 
@@ -113,6 +119,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private Animation fadeOutBackground;
 
     private TickThread tickThread = null;
+    
+    private HueChooser hueChooser;
 
     private boolean alarmRinging;
     private boolean startedByIntent;
@@ -257,14 +265,16 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             }
         });
 
-        final TopBar topBar = (TopBar) findViewById(R.id.top_bar);
+        topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
+        
+        hueButton = topBar.findViewById(R.id.hue_button);
 
         stopButton = (StopButton) findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
         
-        final View stopContainer = findViewById(R.id.stop_button_container);
-        stopContainer.setOnTouchListener(this);
+//        final View stopContainer = findViewById(R.id.stop_button_container);
+//        stopContainer.setOnTouchListener(this);
 
         tickThread = null;
 
@@ -285,6 +295,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         clickedMMSCount = prefs.getInt(PREFS_VAL_CLICKEDMMS, 0);
         avTimeLen = prefs.getInt(PREFS_VAL_AVTIMELEN, 0);
         usageCount = prefs.getInt(PREFS_VAL_USAGECOUNT, 0);
+        currentHue = prefs.getFloat(PREFS_VAL_HUE, 0.5f);
 
         loadUserPrefs();
 
@@ -323,8 +334,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         final int itemHeight = activeTimers.getTimerHeight();
         final int containerHeight = activeTimers.getTotalHeight();
         final int listHeight = activeTimers.getChildCount() * itemHeight;
-        Log.d(Globals.TAG, "Containerheight: " + containerHeight + ", listHeight: " + listHeight + ", itemHeight: "
-                + itemHeight);
         spaceInList = containerHeight == 0 ? true : (listHeight + itemHeight) < containerHeight;
 
         if (dial.isEnabled() != spaceInList)
@@ -401,19 +410,35 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         super.onResume();
         
+        onColourSet(currentHue);
+        
         startTickThread();
 
         threadRun = true;
 
-        if (alarmRinging && endTimes.timersActive())
+        Log.d(Globals.TAG, "onResume: ringing " + alarmRinging + ", timers active " + endTimes.timersActive());
+        if (alarmRinging || endTimes.timersActive())
         {
             showStopButton();
             dial.setAlarmIsRinging(true);
         }
+        
+        closeActiveHueChooser();
 
         dial.setEnabled(spaceInList);
 
         startNetThread();
+    }
+    
+    private void closeActiveHueChooser()
+    {
+        if (hueChooser != null)
+        {
+            hueChooser.close();
+            hueChooser = null;
+        }
+        
+        hueButton.setSelected(false);
     }
 
     private static final int SHOW_PREFERENCES_RESULT_CODE = 1;
@@ -439,6 +464,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 startActivityForResult(intent, SHOW_PREFERENCES_RESULT_CODE);
                 break;
             }
+            case R.id.hue_button:
+                hueChooser = new HueChooser(topBar, this, this);
+                break;
             case R.id.stop_button:
             {
                 if (!alarmRinging)
@@ -526,9 +554,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             {
                 endTime = Long.valueOf(Globals.getTime() + (seconds * 1000));
             }
-
-            Log.d(Globals.TAG, "starting timer, length " + (endTime - Globals.getTime()) + " ( " + Globals.getTime()
-                    + " -> " + endTime + ")");
 
             endTimes.addEndTime(endTime, usageCount);
             setupAlarm(endTime, usageCount);
@@ -626,6 +651,13 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         final SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(pref, value);
+        editor.commit();
+    }
+
+    private void writeFloatToPrefs(final String pref, final float value)
+    {
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putFloat(pref, value);
         editor.commit();
     }
 
@@ -884,11 +916,27 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event)
+    public void onDismiss()
     {
-        final float progressX = (event.getX() / (float)v.getWidth());
-        onColourSet(progressX);
-        Log.d("StopContainer", ""+progressX);
-        return false;
+        
+    }
+
+    @Override
+    public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser)
+    {
+        currentHue = progress / (float)HueChooser.SEEK_MAX;
+        onColourSet(currentHue);
+    }
+
+    @Override
+    public void onStartTrackingTouch(final SeekBar seekBar)
+    {
+    }
+
+    @Override
+    public void onStopTrackingTouch(final SeekBar seekBar)
+    {
+        closeActiveHueChooser();
+        writeFloatToPrefs(PREFS_VAL_HUE, currentHue);
     }
 }

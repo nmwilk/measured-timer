@@ -52,7 +52,6 @@ public class ColorFilterTools
     public static void adjustHue(final ColorMatrix cm, final float val)
     {
         final float value = cleanValue(val, 180f) / 180f * (float) Math.PI;
-        Log.d("Hue", "val = " + val + ", value = " + value);
         if (value == 0)
         {
             return;
