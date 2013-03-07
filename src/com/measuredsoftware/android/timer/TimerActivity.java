@@ -35,7 +35,9 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -62,7 +64,7 @@ import com.measuredsoftware.android.timer.views.TopBar;
  * @author neil
  * 
  */
-public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable
+public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable, OnTouchListener
 {
     /** the alarm ringing variable name for the intent */
     public static final String INTENT_VAR_ALARM_RINGING = "alarmringing";
@@ -137,9 +139,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         {
             parent.get().getDial().updateNowTime();
             parent.get().getTimerList().tickAlarms();
-
-            final long time = SystemClock.uptimeMillis() % 5000;
-            parent.get().onColourSet((float) time / 5000.0f);
         }
     }
 
@@ -263,6 +262,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         stopButton = (StopButton) findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
+        
+        final View stopContainer = findViewById(R.id.stop_button_container);
+        stopContainer.setOnTouchListener(this);
 
         tickThread = null;
 
@@ -309,7 +311,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 colourableViews.add((Colourable) child);
             }
             
-            if (child instanceof ViewGroup)
+            if (child instanceof ViewGroup && !(child instanceof ActiveTimerListView))
             {
                 buildColourableList((ViewGroup)child);
             }
@@ -879,5 +881,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         {
             view.onColourSet(colour);
         }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event)
+    {
+        final float progressX = (event.getX() / (float)v.getWidth());
+        onColourSet(progressX);
+        Log.d("StopContainer", ""+progressX);
+        return false;
     }
 }

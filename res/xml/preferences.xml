@@ -20,5 +20,15 @@
             android:title="@string/send_anon_stats_title"
             android:summary="@string/send_anon_stats_desc"
             android:defaultValue="true" />
+    
+    <!-- 
+    <RingtonePreference 
+        android:key="ringtone"
+        android:title="@string/alarm_tone_title"
+        android:summary="@string/alarm_tone_desc"
+        android:ringtoneType="alarm"
+        android:showDefault=""
+        />
+         -->
             
 </PreferenceScreen>

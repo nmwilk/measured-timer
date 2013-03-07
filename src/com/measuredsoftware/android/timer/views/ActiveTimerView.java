@@ -22,14 +22,13 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
  * @author neil
  * 
  */
-public class ActiveTimerView extends RelativeLayout implements Colourable
+public class ActiveTimerView extends RelativeLayout
 {
     private final Alarm alarm;
     private final ColorFilter dimmer;
 
     private final TextView countdownTextView;
     private final TextView targetTextView;
-    private final ColorMatrix hueMatrix = new ColorMatrix();
 
     /**
      * @param context
@@ -104,12 +103,12 @@ public class ActiveTimerView extends RelativeLayout implements Colourable
         }
     }
 
-    @Override
-    public void onColourSet(final float colour)
+    /**
+     * @param colorFilter
+     */
+    public void setHue(final ColorFilter colorFilter)
     {
-        ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
-        final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
-        targetTextView.getPaint().setColorFilter(filter);
+        targetTextView.getPaint().setColorFilter(colorFilter);
         targetTextView.invalidate();
     }
 }

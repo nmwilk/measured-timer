@@ -4,6 +4,7 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.util.FloatMath;
+import android.util.Log;
 
 /**
  * Color Filter tools.
@@ -36,6 +37,11 @@ public class ColorFilterTools
 
         return new ColorMatrixColorFilter(cm);
     }
+    
+    protected static float cleanValue(float p_val, float p_limit)
+    {
+        return Math.min(p_limit, Math.max(-p_limit, p_val));
+    }
 
     /**
      * @param cm
@@ -45,7 +51,8 @@ public class ColorFilterTools
      */
     public static void adjustHue(final ColorMatrix cm, final float val)
     {
-        final float value = ValueTools.limitFloat(val, -180, 180) / (180f * (float) Math.PI);
+        final float value = cleanValue(val, 180f) / 180f * (float) Math.PI;
+        Log.d("Hue", "val = " + val + ", value = " + value);
         if (value == 0)
         {
             return;

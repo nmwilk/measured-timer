@@ -2,6 +2,8 @@ package com.measuredsoftware.android.timer.views;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.measuredsoftware.android.timer.ColorFilterTools;
 import com.measuredsoftware.android.timer.Colourable;
 import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
@@ -208,6 +211,8 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
     {
         timer.setLayoutParams(lp);
         
+        timer.setHue(filter);
+        
         int earlierTimers = 0;
         final long endTime = timer.getAlarm().ms; 
         for(int i=0; i < getChildCount(); i++)
@@ -285,16 +290,19 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
         return getHeight() + topMargin + bottomMargin;
     }
     
+    private ColorMatrixColorFilter filter;
+    
     @Override
     public void onColourSet(final float colour)
     {
+        final ColorMatrix hueMatrix = new ColorMatrix();
+        ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
+        filter = new ColorMatrixColorFilter(hueMatrix);
+        
         for(int i=0; i < getChildCount(); i++)
         {
-            final View child = getChildAt(i);
-            if (child instanceof Colourable)
-            {
-                ((Colourable)child).onColourSet(colour);
-            }
+            final ActiveTimerView timer = (ActiveTimerView)getChildAt(i);
+            timer.setHue(filter);
         }
     }
 }

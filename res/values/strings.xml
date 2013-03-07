@@ -13,4 +13,6 @@
     <string name="notification_title">Timer Active</string>
     <string name="notification_extitle">Measured Timer</string>
     <string name="notification_exdesc">Timer active - tap to view</string>
+    <string name="alarm_tone_title">Alarm Tone</string>
+    <string name="alarm_tone_desc">Choose the alarm tone</string>
 </resources>

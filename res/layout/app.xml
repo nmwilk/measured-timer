@@ -37,6 +37,7 @@
             android:src="@drawable/dial_spinner" />
 
         <FrameLayout
+            android:id="@+id/stop_button_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/stop_container_height"
             android:layout_alignParentBottom="true"

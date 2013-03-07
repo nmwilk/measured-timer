@@ -11,8 +11,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.widget.Button;
 
@@ -46,7 +44,6 @@ public class StopButton extends Button implements Colourable
     
     private final ColorFilter highlight = new PorterDuffColorFilter(0x1FFFFFFF, PorterDuff.Mode.SRC_ATOP);
     private static HighlightHandler handler;
-    private final ColorMatrix hueMatrix = new ColorMatrix();
     
     /**
      * @param context
@@ -81,6 +78,7 @@ public class StopButton extends Button implements Colourable
     @Override
     public void onColourSet(final float colour)
     {
+        final ColorMatrix hueMatrix = new ColorMatrix();
         ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
         final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
         getPaint().setColorFilter(filter);

@@ -7,5 +7,19 @@
             <flag name="target" value="1" />
         </attr>
     </declare-styleable>
+    <declare-styleable name="TintedImageButton">
+        <attr name="upTintType">
+            <flag name="none" value="-1" />
+            <flag name="dim" value="0" />
+            <flag name="desat" value="1" />
+            <flag name="both" value="2" />
+        </attr>
+        <attr name="downTintType">
+            <flag name="none" value="-1" />
+            <flag name="dim" value="0" />
+            <flag name="desat" value="1" />
+            <flag name="both" value="2" />
+        </attr>
+    </declare-styleable>
 
 </resources>

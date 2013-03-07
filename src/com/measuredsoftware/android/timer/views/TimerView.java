@@ -87,7 +87,7 @@ public class TimerView extends RotatableImageView implements Colourable
 
     private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
     
-    private final ColorMatrix hueMatrix = new ColorMatrix();
+//    private final ColorMatrix hueMatrix = new ColorMatrix();
 
     /**
      * @param context
@@ -440,6 +440,7 @@ public class TimerView extends RotatableImageView implements Colourable
     @Override
     public void onColourSet(final float colour)
     {
+        final ColorMatrix hueMatrix = new ColorMatrix();
         ColorFilterTools.adjustHue(hueMatrix, Math.round(colour * 360) - 180);
         final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
         innerRing.setColorFilter(filter);
