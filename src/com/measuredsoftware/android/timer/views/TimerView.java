@@ -1,5 +1,6 @@
 package com.measuredsoftware.android.timer.views;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
@@ -87,6 +88,8 @@ public class TimerView extends RotatableImageView implements Colourable
     private Drawable innerRing;
 
     private float cachedHue = -1f;
+    
+    private ObjectAnimator glowAnimation;
 
     // private final ColorMatrix hueMatrix = new ColorMatrix();
 
@@ -154,6 +157,11 @@ public class TimerView extends RotatableImageView implements Colourable
     public boolean onTouchEvent(final MotionEvent event)
     {
         if (!isEnabled()) return true;
+        
+        if (glowAnimation != null) {
+            glowAnimation.end();
+            glowAnimation = null;
+        }
 
         // don't allow moving of timer if ringing
         if (alarmRinging)
@@ -348,12 +356,7 @@ public class TimerView extends RotatableImageView implements Colourable
             final float alpha;
             final float angle;
 
-            if (dotProgress < PROGRESS_FADE_IN)
-            {
-                angle = 0f;
-                alpha = interpolatorFadeIn.getInterpolation(dotProgress / PROGRESS_FADE_IN);
-            }
-            else if (dotProgress > (1f-PROGRESS_FADE_OUT))
+            if (dotProgress > (1f-PROGRESS_FADE_OUT))
             {
                 angle = PROGRESS_ANGLE_END;
                 final float p = ValueTools.progressInRange(dotProgress, 1f-PROGRESS_FADE_OUT, 1f);
@@ -361,9 +364,16 @@ public class TimerView extends RotatableImageView implements Colourable
             }
             else
             {
-                final float p = ValueTools.progressInRange(dotProgress-PROGRESS_FADE_IN, 0f, 1f-(PROGRESS_FADE_IN+PROGRESS_FADE_OUT));
+                final float p = ValueTools.progressInRange(dotProgress, 0f, 1f-PROGRESS_FADE_OUT);
                 angle = interpolatorMove.getInterpolation(p) * PROGRESS_ANGLE_END;
-                alpha = 1f;
+                if (dotProgress < PROGRESS_FADE_IN)
+                {
+                    alpha = interpolatorFadeIn.getInterpolation(dotProgress / PROGRESS_FADE_IN);
+                }
+                else
+                {
+                    alpha = 1f;
+                }
             }
 
 
@@ -506,5 +516,15 @@ public class TimerView extends RotatableImageView implements Colourable
             textPaintTarget.setColorFilter(filter);
             touchGlow.setColorFilter(filter);
         }
+    }
+
+    /**
+     * The animation to show to touch glow.
+     * 
+     * @param glowAnimation
+     */
+    public void setGlowAnimation(final ObjectAnimator glowAnimation)
+    {
+        this.glowAnimation = glowAnimation;
     }
 }

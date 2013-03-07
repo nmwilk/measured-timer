@@ -182,6 +182,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     }
 
     private NetHandler netHandler;
+    
+    private ObjectAnimator glowAnimation;
+    private final Handler spareHandler = new Handler();
 
     // stats vars from prefs
     private String installDate;
@@ -430,11 +433,23 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         startNetThread();
         
-        final ObjectAnimator glowAnimation = ObjectAnimator.ofFloat(dial, "dotAnimate", 0f, 1f);
-        glowAnimation.setDuration(3000);
-        glowAnimation.setRepeatMode(ObjectAnimator.RESTART);
-        glowAnimation.setRepeatCount(ObjectAnimator.INFINITE);
-        glowAnimation.start();
+        if (!alarmRinging)
+        {
+            final Runnable animator = new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    glowAnimation = ObjectAnimator.ofFloat(dial, "dotAnimate", 0f, 1f);
+                    glowAnimation.setDuration(3000);
+                    glowAnimation.setRepeatMode(ObjectAnimator.RESTART);
+                    glowAnimation.setRepeatCount(2);
+                    glowAnimation.start();
+                    dial.setGlowAnimation(glowAnimation);
+                }
+            };
+            spareHandler.postDelayed(animator, 1000);
+        }
     }
 
     private void closeActiveHueChooser()
