@@ -87,7 +87,7 @@ public class TimerView extends RotatableImageView implements Colourable
 
     private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
 
-    private float cachedHue = 0f;
+    private float cachedHue = -1f;
     
 //    private final ColorMatrix hueMatrix = new ColorMatrix();
 
@@ -354,7 +354,7 @@ public class TimerView extends RotatableImageView implements Colourable
             final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
             innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
             
-            if (cachedHue != 0f) setColour = true;
+            if (cachedHue != -1f) setColour = true;
         }
 
         if (textPaintCountdown == null)
