@@ -429,6 +429,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         dial.setEnabled(spaceInList);
 
         startNetThread();
+        
+        final ObjectAnimator glowAnimation = ObjectAnimator.ofFloat(dial, "dotAnimate", 0f, 1f);
+        glowAnimation.setDuration(3000);
+        glowAnimation.setRepeatMode(ObjectAnimator.RESTART);
+        glowAnimation.setRepeatCount(ObjectAnimator.INFINITE);
+        glowAnimation.start();
     }
 
     private void closeActiveHueChooser()

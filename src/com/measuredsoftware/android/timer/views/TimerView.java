@@ -2,18 +2,20 @@ package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.PorterDuffColorFilter;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Interpolator;
 
+import com.measuredsoftware.android.library2.utils.CoordTools;
 import com.measuredsoftware.android.library2.utils.MathTools;
+import com.measuredsoftware.android.library2.utils.ValueTools;
 import com.measuredsoftware.android.timer.ColorFilterTools;
 import com.measuredsoftware.android.timer.Colourable;
 import com.measuredsoftware.android.timer.Globals;
@@ -78,18 +80,15 @@ public class TimerView extends RotatableImageView implements Colourable
     private int endtimePosY;
 
     private final Drawable touchGlow;
-    private final Drawable touchArrow;
+    private final int touchGlowWidth;
+    private final int touchGlowHeight;
+    private float dotProgress = 0f;
+
     private Drawable innerRing;
 
-    private final String stopText;
-    private Paint stopTextPaint;
-    private float stopTextX, stopTextY;
-
-    private final ColorFilter textDimmer = new PorterDuffColorFilter(0x4F000000, PorterDuff.Mode.SRC_ATOP);
-
     private float cachedHue = -1f;
-    
-//    private final ColorMatrix hueMatrix = new ColorMatrix();
+
+    // private final ColorMatrix hueMatrix = new ColorMatrix();
 
     /**
      * @param context
@@ -118,9 +117,11 @@ public class TimerView extends RotatableImageView implements Colourable
         setDigitalTimeTo(0);
 
         touchGlow = getResources().getDrawable(R.drawable.touch_glow);
-        touchArrow = getResources().getDrawable(R.drawable.touch_arrow);
-
-        stopText = getResources().getString(R.string.stop);
+        
+        if (touchGlow == null) throw new RuntimeException("Failed to load touch glow Bitmap.");
+        
+        touchGlowWidth = touchGlow.getIntrinsicWidth();
+        touchGlowHeight = touchGlow.getIntrinsicHeight();
     }
 
     /**
@@ -314,7 +315,7 @@ public class TimerView extends RotatableImageView implements Colourable
     }
 
     @Override
-    protected void onDraw(Canvas canvas)
+    protected void onDraw(final Canvas canvas)
     {
         super.onDraw(canvas);
 
@@ -328,24 +329,59 @@ public class TimerView extends RotatableImageView implements Colourable
         canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, textPaintCountdown);
         canvas.drawText(msEndTime, endtimePosX, endtimePosY, textPaintTarget);
 
-        // if (mSettingTime)
-        // {
-        // CoordTools.getVelocityFromAngleAndSpeed(mAngle, 200, tempPoint);
-        // final int left = Math.round(mCentreX + tempPoint.x) -
-        // touchGlow.getIntrinsicWidth()/2;
-        // final int top = Math.round(mCentreY - tempPoint.y) -
-        // touchGlow.getIntrinsicHeight()/2;
-        // touchGlow.setBounds(left, top, left + touchGlow.getIntrinsicWidth(),
-        // top + touchGlow.getIntrinsicHeight());
-        //
-        // touchGlow.draw(canvas);
-        // }
+        // draw glow
+        drawTouchDot(canvas);
+    }
+
+    private final static float PROGRESS_FADE_IN = 0.1f;
+    private final static float PROGRESS_FADE_OUT = 0.1f;
+    private final static float PROGRESS_ANGLE_END = 280f;
+    private final Interpolator interpolatorFadeIn = new AccelerateInterpolator(); 
+    private final Interpolator interpolatorFadeOut = new AccelerateInterpolator(); 
+    private final Interpolator interpolatorMove = new AccelerateDecelerateInterpolator();
+    private final PointF position = new PointF();
+    
+    private void drawTouchDot(final Canvas canvas)
+    {
+        if (dotProgress != 0f && dotProgress < 1f)
+        {
+            final float alpha;
+            final float angle;
+
+            if (dotProgress < PROGRESS_FADE_IN)
+            {
+                angle = 0f;
+                alpha = interpolatorFadeIn.getInterpolation(dotProgress / PROGRESS_FADE_IN);
+            }
+            else if (dotProgress > (1f-PROGRESS_FADE_OUT))
+            {
+                angle = PROGRESS_ANGLE_END;
+                final float p = ValueTools.progressInRange(dotProgress, 1f-PROGRESS_FADE_OUT, 1f);
+                alpha = 1f-interpolatorFadeOut.getInterpolation(p);
+            }
+            else
+            {
+                final float p = ValueTools.progressInRange(dotProgress-PROGRESS_FADE_IN, 0f, 1f-(PROGRESS_FADE_IN+PROGRESS_FADE_OUT));
+                angle = interpolatorMove.getInterpolation(p) * PROGRESS_ANGLE_END;
+                alpha = 1f;
+            }
+
+
+            CoordTools.getVelocityFromAngleAndSpeed(angle, 230f, position);
+
+            touchGlow.setAlpha(Math.round(255 * alpha));
+            final int left = ((getWidth() - touchGlowWidth) / 2) + Math.round(position.x);
+            final int top = (getHeight() / 2) - (touchGlowHeight / 2) - Math.round(position.y);
+            touchGlow.setBounds(left, top, left + touchGlowWidth, top + touchGlowHeight);
+            
+            touchGlow.draw(canvas);
+        }
     }
 
     private void initialiseOnFirstDraw()
     {
         boolean setColour = false;
-        
+
         if (innerRing == null)
         {
             innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
@@ -353,7 +389,7 @@ public class TimerView extends RotatableImageView implements Colourable
             final int left = (getWidth() - innerRing.getIntrinsicWidth()) / 2;
             final int top = (getHeight() - innerRing.getIntrinsicHeight()) / 2;
             innerRing.setBounds(left, top, left + innerRing.getIntrinsicWidth(), top + innerRing.getIntrinsicHeight());
-            
+
             if (cachedHue != -1f) setColour = true;
         }
 
@@ -361,17 +397,9 @@ public class TimerView extends RotatableImageView implements Colourable
         {
             createPaints();
 
-            stopTextPaint = TimerTextView.stylePaint(TextType.COUNTDOWN, getWidth());
-            stopTextPaint.setColor(0xFFFFFFFF);
-            stopTextPaint.setShadowLayer(stopTextPaint.getTextSize() / 6, 0, 0, 0xFFFFFFFF);
-            stopTextPaint.setColorFilter(new PorterDuffColorFilter(0xFFFFFFFF, Mode.SRC_IN));
-
-            stopTextX = getWidth() / 2;
-            stopTextY = (getHeight() / 2) + (stopTextPaint.getTextSize() / 4);
-
             if (cachedHue != 0f) setColour = true;
         }
-        
+
         if (setColour)
         {
             onColourSet(cachedHue);
@@ -383,6 +411,17 @@ public class TimerView extends RotatableImageView implements Colourable
         endtimePosY = countdownTimePosY + Math.round(textPaintCountdown.getTextSize());
 
         updateVisibleStates();
+    }
+
+    /**
+     * Property to show touch glow.
+     * 
+     * @param progress
+     */
+    public void setDotAnimate(final float progress)
+    {
+        this.dotProgress = progress;
+        invalidate();
     }
 
     private void updateVisibleStates()
@@ -465,6 +504,7 @@ public class TimerView extends RotatableImageView implements Colourable
             final ColorMatrixColorFilter filter = new ColorMatrixColorFilter(hueMatrix);
             innerRing.setColorFilter(filter);
             textPaintTarget.setColorFilter(filter);
+            touchGlow.setColorFilter(filter);
         }
     }
 }

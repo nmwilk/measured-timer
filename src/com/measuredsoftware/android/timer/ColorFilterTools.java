@@ -37,7 +37,7 @@ public class ColorFilterTools
 
         return new ColorMatrixColorFilter(cm);
     }
-    
+
     protected static float cleanValue(float p_val, float p_limit)
     {
         return Math.min(p_limit, Math.max(-p_limit, p_val));
@@ -67,6 +67,7 @@ public class ColorFilterTools
                 lumG + cosVal * (1 - lumG) + sinVal * (0.140f), lumB + cosVal * (-lumB) + sinVal * (-0.283f), 0, 0,
                 lumR + cosVal * (-lumR) + sinVal * (-(1 - lumR)), lumG + cosVal * (-lumG) + sinVal * (lumG),
                 lumB + cosVal * (1 - lumB) + sinVal * (lumB), 0, 0, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f };
+
         cm.postConcat(new ColorMatrix(mat));
     }
 
@@ -92,7 +93,7 @@ public class ColorFilterTools
         { lumR * (1 - x) + x, lumG * (1 - x), lumB * (1 - x), 0, 0, lumR * (1 - x), lumG * (1 - x) + x, lumB * (1 - x),
                 0, 0, lumR * (1 - x), lumG * (1 - x), lumB * (1 - x) + x, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 };
         cm.postConcat(new ColorMatrix(mat));
-        //cm.setSaturation(0);
+        // cm.setSaturation(0);
     }
 
     /**
