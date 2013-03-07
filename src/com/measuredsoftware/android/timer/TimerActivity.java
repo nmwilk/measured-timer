@@ -274,9 +274,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         stopButton = (StopButton) findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
 
-        // final View stopContainer = findViewById(R.id.stop_button_container);
-        // stopContainer.setOnTouchListener(this);
-
         tickThread = null;
 
         firstChange = true;
@@ -933,7 +930,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     @Override
     public void onDismiss()
     {
-        hueChooser.close();
+        hueButton.setSelected(false);
         hueChooser = null;
     }
 
