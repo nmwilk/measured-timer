@@ -418,8 +418,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         threadRun = true;
 
-        Log.d(Globals.TAG, "onResume: ringing " + alarmRinging + ", timers active " + endTimes.timersActive());
-        if (alarmRinging || endTimes.timersActive())
+        if (alarmRinging)
         {
             showStopButton();
             dial.setAlarmIsRinging(true);
