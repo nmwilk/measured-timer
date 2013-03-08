@@ -20,6 +20,5 @@
     <dimen name="stop_button_height">130dp</dimen>
     <dimen name="stop_button_text_size">50dp</dimen>
     <dimen name="hue_slider_margin">10dp</dimen>
-    <dimen name="touch_glow_hyp">115dp</dimen>
 
 </resources>
