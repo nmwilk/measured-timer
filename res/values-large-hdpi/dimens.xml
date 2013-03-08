@@ -16,9 +16,9 @@
     <dimen name="cancel_button_margin_right">0dp</dimen>
 
     <!-- same height as dial image -->
-    <dimen name="stop_container_height">292dp</dimen>
-    <dimen name="stop_button_height">130dp</dimen>
+    <dimen name="stop_container_height">584px</dimen>
+    <dimen name="stop_button_height">260px</dimen>
     <dimen name="stop_button_text_size">50dp</dimen>
-    <dimen name="hue_slider_margin">10dp</dimen>
+    <dimen name="hue_slider_margin">20dp</dimen>
 
 </resources>
