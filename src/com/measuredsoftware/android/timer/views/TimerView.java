@@ -89,6 +89,8 @@ public class TimerView extends RotatableImageView implements Colourable
 
     private float cachedHue = -1f;
     
+    private final float touchGlowHyp;
+    
     private ObjectAnimator glowAnimation;
 
     // private final ColorMatrix hueMatrix = new ColorMatrix();
@@ -125,6 +127,8 @@ public class TimerView extends RotatableImageView implements Colourable
         
         touchGlowWidth = touchGlow.getIntrinsicWidth();
         touchGlowHeight = touchGlow.getIntrinsicHeight();
+        
+        touchGlowHyp = getResources().getDimensionPixelSize(R.dimen.touch_glow_hyp);
     }
 
     /**
@@ -377,7 +381,7 @@ public class TimerView extends RotatableImageView implements Colourable
             }
 
 
-            CoordTools.getVelocityFromAngleAndSpeed(angle, 230f, position);
+            CoordTools.getVelocityFromAngleAndSpeed(angle, touchGlowHyp, position);
 
             touchGlow.setAlpha(Math.round(255 * alpha));
             final int left = ((getWidth() - touchGlowWidth) / 2) + Math.round(position.x);
