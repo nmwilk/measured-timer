@@ -89,7 +89,7 @@ public class TimerView extends RotatableImageView implements Colourable
 
     private float cachedHue = -1f;
     
-    private final float touchGlowHyp;
+    private float touchGlowHyp;
     
     private ObjectAnimator glowAnimation;
 
@@ -127,8 +127,15 @@ public class TimerView extends RotatableImageView implements Colourable
         
         touchGlowWidth = touchGlow.getIntrinsicWidth();
         touchGlowHeight = touchGlow.getIntrinsicHeight();
+    }
+    
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+    {
+        super.onLayout(changed, left, top, right, bottom);
         
-        touchGlowHyp = getResources().getDimensionPixelSize(R.dimen.touch_glow_hyp);
+        touchGlowHyp = (float)(bottom-top) * 0.39f;
+
     }
 
     /**
