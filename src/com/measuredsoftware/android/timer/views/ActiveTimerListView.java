@@ -72,18 +72,18 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
             lp.setMargins(horizMargin, vertMargin, horizMargin, vertMargin);
         }
         
-        final LayoutTransition transition = getLayoutTransition();
-        if (transition != null)
-        {
-            Log.d(TAG, "CHANGE_APPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_APPEARING).toString());
-            Log.d(TAG, "CHANGE_DISAPPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_DISAPPEARING).toString());
-            //Log.d(TAG, "CHANGING " + transition.getInterpolator(LayoutTransition.CHANGING).toString());
-            Log.d(TAG, "APPEARING " + transition.getInterpolator(LayoutTransition.APPEARING).toString());
-            Log.d(TAG, "DISAPPEARING " + transition.getInterpolator(LayoutTransition.DISAPPEARING).toString());
-            
-            transition.setInterpolator(LayoutTransition.CHANGE_APPEARING, new DecelerateInterpolator(2f));
-            transition.setInterpolator(LayoutTransition.CHANGE_DISAPPEARING, new DecelerateInterpolator(2f));
-        }
+//        final LayoutTransition transition = getLayoutTransition();
+//        if (transition != null)
+//        {
+//            Log.d(TAG, "CHANGE_APPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_APPEARING).toString());
+//            Log.d(TAG, "CHANGE_DISAPPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_DISAPPEARING).toString());
+//            //Log.d(TAG, "CHANGING " + transition.getInterpolator(LayoutTransition.CHANGING).toString());
+//            Log.d(TAG, "APPEARING " + transition.getInterpolator(LayoutTransition.APPEARING).toString());
+//            Log.d(TAG, "DISAPPEARING " + transition.getInterpolator(LayoutTransition.DISAPPEARING).toString());
+//            
+//            transition.setInterpolator(LayoutTransition.CHANGE_APPEARING, new DecelerateInterpolator(2f));
+//            transition.setInterpolator(LayoutTransition.CHANGE_DISAPPEARING, new DecelerateInterpolator(2f));
+//        }
         
         childHeight = 0;
     }

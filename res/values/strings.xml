@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="stop">stop</string>
-    <string name="app_name">Measured Timer</string>
+    <string name="app_name">M Timer</string>
     <string name="otherswlink">market://search?q=pub:measuredsoftware.co.uk</string>
     <string name="use_notifications_title">Show Notifications</string>
     <string name="use_notifications_desc">Show notification when timer is set?</string>

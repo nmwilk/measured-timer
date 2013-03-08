@@ -1,9 +1,10 @@
 package com.measuredsoftware.android.timer;
 
 import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.BroadcastReceiver;
+import android.util.Log;
 
 /**
  * @author neil
@@ -26,6 +27,7 @@ public class AlarmReceiver extends BroadcastReceiver
         {
             asleep = true;
         }
+        Log.d(Globals.TAG, "onReceive: asleep " + asleep);
 
         final Intent alarmAlert = new Intent(context, TimerActivity.class);
         alarmAlert.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION

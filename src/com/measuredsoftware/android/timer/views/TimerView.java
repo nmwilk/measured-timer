@@ -1,6 +1,5 @@
 package com.measuredsoftware.android.timer.views;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
@@ -23,6 +22,7 @@ import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.RotatableImageView;
 import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
+import com.nineoldandroids.animation.ObjectAnimator;
 
 /**
  * The rotatable view that starts a timer.
@@ -515,6 +515,7 @@ public class TimerView extends RotatableImageView implements Colourable
             innerRing.setColorFilter(filter);
             textPaintTarget.setColorFilter(filter);
             touchGlow.setColorFilter(filter);
+            invalidate();
         }
     }
 

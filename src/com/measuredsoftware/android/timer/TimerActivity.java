@@ -12,9 +12,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -33,6 +30,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +55,9 @@ import com.measuredsoftware.android.timer.views.ActiveTimerView;
 import com.measuredsoftware.android.timer.views.StopButton;
 import com.measuredsoftware.android.timer.views.TimerView;
 import com.measuredsoftware.android.timer.views.TopBar;
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
+import com.nineoldandroids.animation.ObjectAnimator;
 
 /**
  * Main activity for app.
@@ -311,6 +312,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         }
 
         buildColourableList((ViewGroup) findViewById(R.id.container_view));
+        
+        final DisplayMetrics dm = new DisplayMetrics();
+        ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(dm);
+        Log.d(Globals.TAG, "Display: " + dm.widthPixels + "x" + dm.heightPixels + " @ " + dm.density);
     }
 
     private void buildColourableList(final ViewGroup container)
@@ -391,10 +396,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         super.onNewIntent(intent);
 
-        Log.d(Globals.TAG, "onNewIntent");
-
         alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
         deviceAsleep = intent.getBooleanExtra(INTENT_VAR_DEVICE_ASLEEP, false);
+        
+        Log.d(Globals.TAG, "onNewIntent: ar " + alarmRinging + ", da " + deviceAsleep);
 
         intent.removeExtra(INTENT_VAR_ALARM_RINGING);
         intent.removeExtra(INTENT_VAR_DEVICE_ASLEEP);
@@ -456,8 +461,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         if (hueChooser != null)
         {
-            hueChooser.close();
+            final HueChooser copy = hueChooser;
             hueChooser = null;
+            copy.close();
         }
 
         hueButton.setSelected(false);

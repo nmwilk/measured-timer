@@ -56,6 +56,9 @@ public class HueChooser
     /** */
     public void close()
     {
-        popup.dismiss();
+        if (popup.isShowing())
+        {
+            popup.dismiss();
+        }
     }
 }
