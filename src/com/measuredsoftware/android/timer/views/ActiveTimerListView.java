@@ -1,13 +1,10 @@
 package com.measuredsoftware.android.timer.views;
 
-import android.animation.LayoutTransition;
 import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -144,7 +141,6 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
         {
             final ActiveTimerView timerView = (ActiveTimerView) getChildAt(i);
             boolean found = false;
-            Log.d(TAG, "Looking for View with uid " + timerView.getAlarm().uid);
             for (int a = 0; a < alarms.count(); a++)
             {
                 final Alarm alarm = alarms.getTime(a);
@@ -157,13 +153,8 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
 
             if (!found)
             {
-                Log.d(TAG, "- didn't find it");
                 removeView(timerView);
                 --i;
-            }
-            else
-            {
-                Log.d(TAG, "- found it");
             }
         }
 
@@ -172,7 +163,6 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
         for (int a = 0; a < alarms.count(); a++)
         {
             boolean found = false;
-            Log.d(TAG, "Looking for Alarm with uid " + alarms.getTime(a).uid);
             for (int i = 0; i < getChildCount(); i++)
             {
                 final ActiveTimerView timerView = (ActiveTimerView) getChildAt(i);
@@ -185,13 +175,8 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
 
             if (!found)
             {
-                Log.d(TAG, "- didn't find it");
                 final ActiveTimerView newTimer = new ActiveTimerView(getContext(), alarms.getTime(a), cancelClickListener);
                 addTimer(newTimer);
-            }
-            else
-            {
-                Log.d(TAG, "- found it");
             }
         }
     }

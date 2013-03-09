@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import android.util.Log;
-
 import com.measuredsoftware.android.timer.Globals;
 
 /**
@@ -96,7 +94,6 @@ public class EndTimes
      */
     public void addEndTime(final long time, final int id)
     {
-        Log.d(TAG, "addEndTime " + id + ", " + time);
         endTimes.add(new Alarm(time, id));
     }
 
@@ -110,12 +107,10 @@ public class EndTimes
         if (endTimes.size() > 0)
         {
             alarm = endTimes.remove(endTimes.size() - 1);
-            Log.d(TAG, "removeLast: removedLast");
         }
         else
         {
             alarm = null;
-            Log.d(TAG, "removeLast: none present");
         }
 
         return alarm;
@@ -162,7 +157,6 @@ public class EndTimes
         }
 
         final String string = sb.toString();
-        Log.d(TAG, "toString " + string);
 
         return string;
     }
@@ -224,8 +218,6 @@ public class EndTimes
                 endTimes.add(loadedAlarm);
             }
         }
-
-        Log.d(TAG, "load. " + toString());
     }
 
     /**
