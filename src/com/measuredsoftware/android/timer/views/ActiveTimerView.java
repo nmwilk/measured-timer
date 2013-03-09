@@ -2,8 +2,6 @@ package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
 import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.view.MotionEvent;
@@ -11,8 +9,6 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.measuredsoftware.android.timer.ColorFilterTools;
-import com.measuredsoftware.android.timer.Colourable;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 

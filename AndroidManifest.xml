@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-sdk
-        android:minSdkVersion="13"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
     <supports-screens
@@ -51,14 +51,14 @@
             android:screenOrientation="portrait" >
         </activity>
 
-        <receiver android:name="AlarmReceiver" >
+        <receiver android:name="AlarmReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="com.measuredsoftware.android.timer.ALARM_ALERT" />
                 <action android:name="alarm_killed" />
             </intent-filter>
         </receiver>
 
-        <service android:name="AlarmBuzzer" >
+        <service android:name="AlarmBuzzer" android:exported="false">
             <intent-filter>
                 <action android:name="com.measuredsoftware.android.timer.ALARM_ALERT" />
             </intent-filter>

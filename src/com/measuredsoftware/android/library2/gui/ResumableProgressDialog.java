@@ -1,6 +1,5 @@
 package com.measuredsoftware.android.library2.gui;
 
-import android.R;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -47,7 +46,7 @@ public class ResumableProgressDialog extends ProgressDialog
     super.onCreate(savedInstanceState);
     
     // Get a handle on our subclassed ProgressDialog's ProgressBar
-    View progressBar = findViewById(R.id.progress);
+    View progressBar = findViewById(android.R.id.progress);
     if(progressBar instanceof ProgressBar) // this also checks for null
       mProgress = (ProgressBar)progressBar;
   }

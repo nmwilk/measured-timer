@@ -2,7 +2,6 @@
 <resources>
 
     <dimen name="top_bar_height">82px</dimen>
-    <dimen name="timer_padding">30dp</dimen>
     <dimen name="timers_list_margin">9dp</dimen>
     <dimen name="top_bar_button_margin">20dp</dimen>
     <dimen name="timer_margin">21dp</dimen>

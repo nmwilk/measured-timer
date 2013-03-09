@@ -3,8 +3,6 @@ package com.measuredsoftware.android.timer;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.util.FloatMath;
-import android.util.Log;
 
 /**
  * Color Filter tools.
@@ -56,8 +54,8 @@ public class ColorFilterTools
         {
             return;
         }
-        float cosVal = FloatMath.cos(value);
-        float sinVal = FloatMath.sin(value);
+        float cosVal = (float)Math.cos(value);
+        float sinVal = (float)Math.sin(value);
         float lumR = 0.213f;
         float lumG = 0.715f;
         float lumB = 0.072f;

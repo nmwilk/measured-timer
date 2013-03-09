@@ -30,8 +30,6 @@ public class Globals
     /** standard logging tag */
     public static final String TAG = "MT";
     
-    private static int tintColour = 0;
-    
     private static Typeface mFont;
 
     private static final int TEXT_COLOUR_DEFAULT_COUNTDOWN = 0xFFFFFFFF;
@@ -43,7 +41,6 @@ public class Globals
      */
     public static void init(final Resources resources)
     {
-        tintColour = resources.getColor(R.color.tint);
         mFont = Typeface.createFromAsset(resources.getAssets(), FONT_STRING);
         textColorDefaultEndTime = resources.getColor(R.color.tint);
     }
@@ -85,26 +82,6 @@ public class Globals
         TIME.set(getTime() + (seconds * 1000));
         
         return TIME.format(TIME_FORMAT);
-    }
-    
-    /**
-     * @param colour argb value.
-     */
-    public static void setTintColour(final int colour)
-    {
-        tintColour = colour;
-    }
-    
-    /**
-     * @return The tint colour in use.
-     */
-    public static int getTintColour()
-    {
-        if (tintColour == 0)
-        {
-            throw new RuntimeException("Global colours not initialised. Call Globals.init(Resources res).");
-        }
-        return tintColour;
     }
     
     /**
