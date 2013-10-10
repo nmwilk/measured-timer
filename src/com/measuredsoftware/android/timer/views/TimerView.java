@@ -96,7 +96,7 @@ public class TimerView extends TouchRotatableView implements Colourable
         spinner = getResources().getDrawable(R.drawable.dial_spinner);
         touchGlow = getResources().getDrawable(R.drawable.touch_glow);
 
-        touchGlowHyp = (bezel.getIntrinsicWidth() - touchGlow.getIntrinsicWidth()) / 2;
+        touchGlowHyp = calculateGlowPosition();
         size = Math.round(bezel.getIntrinsicWidth() + touchGlow.getIntrinsicWidth() / 2);
 
         eventListener = null;
@@ -124,6 +124,15 @@ public class TimerView extends TouchRotatableView implements Colourable
 
         touchGlowWidth = touchGlow.getIntrinsicWidth();
         touchGlowHeight = touchGlow.getIntrinsicHeight();
+    }
+
+    private int calculateGlowPosition()
+    {
+        // half way point between width of bezel and inner circle
+        final float position = (bezel.getIntrinsicWidth() + innerRing.getIntrinsicWidth()) / 4;
+
+        // minus a little bit!
+        return (int) (position * 0.92);
     }
 
     @Override
@@ -199,11 +208,7 @@ public class TimerView extends TouchRotatableView implements Colourable
             return true;
         }
 
-        if (glowAnimation != null)
-        {
-            glowAnimation.end();
-            glowAnimation = null;
-        }
+        stopGlowAnimation();
 
         final boolean superHandled = super.onTouchEvent(event);
 
@@ -267,6 +272,15 @@ public class TimerView extends TouchRotatableView implements Colourable
         }
 
         return true;
+    }
+
+    public void stopGlowAnimation()
+    {
+        if (glowAnimation != null)
+        {
+            glowAnimation.end();
+            glowAnimation = null;
+        }
     }
 
     private void updateCountdownTimeFilter()
@@ -345,7 +359,6 @@ public class TimerView extends TouchRotatableView implements Colourable
         // draw digital times
         canvas.drawText(msCountdownTime, countdownTimePosX, countdownTimePosY, textPaintCountdown);
         canvas.drawText(msEndTime, endtimePosX, endtimePosY, textPaintTarget);
-
 
         // draw glow
         drawTouchDot(canvas);
