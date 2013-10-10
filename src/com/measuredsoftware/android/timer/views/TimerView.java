@@ -1,5 +1,6 @@
 package com.measuredsoftware.android.timer.views;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
@@ -13,7 +14,6 @@ import com.measuredsoftware.android.library2.utils.MathTools;
 import com.measuredsoftware.android.library2.utils.ValueTools;
 import com.measuredsoftware.android.timer.*;
 import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
-import com.nineoldandroids.animation.ObjectAnimator;
 
 /**
  * The rotatable view that starts a timer.

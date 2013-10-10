@@ -1,11 +1,9 @@
 package com.measuredsoftware.android.timer;
 
-import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
-
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.text.format.Time;
+import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
 
 /**
  * Place to put all global consts.
@@ -19,7 +17,7 @@ public class Globals
     public static final boolean DEBUG_LAYOUT = false;
     
     /** use seconds instead of minutes */
-    public static final boolean DEBUG_QUICK_TIME = false;
+    public static final boolean DEBUG_QUICK_TIME = true;
     
     /* the name of the font resource */
     private static final String FONT_STRING = "creative.ttf";
@@ -28,6 +26,7 @@ public class Globals
     private static final String TIME_FORMAT = "%H:%M:%S";
 
     /** standard logging tag */
+    @SuppressWarnings("UnusedDeclaration")
     public static final String TAG = "MT";
     
     private static Typeface mFont;
@@ -37,7 +36,6 @@ public class Globals
     
     /**
      * Call once before using Globals. 
-     * @param resources
      */
     public static void init(final Resources resources)
     {
@@ -56,7 +54,6 @@ public class Globals
     private static final Time TIME = new Time();
 
     /**
-     * @param secondsRemaining
      * @return The remaining time formatted as HH:MM:SS.
      */
     public static String getFormattedTimeRemaining(final long secondsRemaining)
@@ -72,7 +69,6 @@ public class Globals
     }
     
     /**
-     * @param secondsRemaining
      * @return The end time formatted as HH:MM:SS.
      */
     public static String getFormattedTimeEnd(final long secondsRemaining)
@@ -97,7 +93,6 @@ public class Globals
     }
 
     /**
-     * @param type
      * @return ARGB colour
      */
     public static int getTextColor(final TextType type)
