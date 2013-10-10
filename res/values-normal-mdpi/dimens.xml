@@ -4,6 +4,7 @@
     <dimen name="top_bar_height">35dp</dimen>
     <dimen name="timers_list_margin">4dp</dimen>
     <dimen name="top_bar_button_margin">8dp</dimen>
+    <dimen name="timer_margin">0dp</dimen>
     <dimen name="cancel_button_padding">0dp</dimen>
     <dimen name="countdown_text_size">20px</dimen>
     <dimen name="target_text_size">17px</dimen>

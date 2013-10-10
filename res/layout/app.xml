@@ -31,13 +31,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/timer_margin" />
 
         <FrameLayout
             android:id="@+id/stop_button_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/stop_container_height"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/timer_margin"
             android:background="@null" >
 
             <com.measuredsoftware.android.timer.views.StopButton
