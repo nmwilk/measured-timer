@@ -16,10 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
@@ -40,17 +37,20 @@ import java.util.List;
 
 /**
  * Main activity for app.
- * 
+ *
  * @author neil
- * 
  */
 public class TimerActivity extends Activity implements TimerView.OnEventListener, View.OnClickListener, Colourable,
         OnSeekBarChangeListener, OnDismissListener
 {
-    /** the alarm ringing variable name for the intent */
+    /**
+     * the alarm ringing variable name for the intent
+     */
     public static final String INTENT_VAR_ALARM_RINGING = "alarmringing";
 
-    /** the device asleep variable name for the intent */
+    /**
+     * the device asleep variable name for the intent
+     */
     public static final String INTENT_VAR_DEVICE_ASLEEP = "deviceasleep";
 
     private static final int NOTIFICATION_ID = 1;
@@ -76,6 +76,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private ImageView mainBg;
     private ActiveTimerListView activeTimers;
     private StopButton stopButton;
+    private View stopButtonContainer;
     private TopBar topBar;
 
     private View hueButton;
@@ -121,7 +122,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private ObjectAnimator glowAnimation;
     private final Handler spareHandler = new Handler();
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -177,6 +180,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         hueButton = topBar.findViewById(R.id.hue_button);
 
+        stopButtonContainer = findViewById(R.id.stop_button_container);
         stopButton = (StopButton) findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
 
@@ -196,10 +200,24 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         usageCount = prefs.getInt(PREFS_VAL_USAGECOUNT, 0);
         showNotification = prefs.getBoolean(PREFS_VAL_USE_NOTIFICATIONS, true);
 
-        buildColourableList((ViewGroup) findViewById(R.id.container_view));
-        
+        final ViewGroup containerView = (ViewGroup)findViewById(R.id.container_view);
+        buildColourableList(containerView);
+
         final DisplayMetrics dm = new DisplayMetrics();
-        ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(dm);
+        ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(dm);
+
+        final ViewTreeObserver observer = containerView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+        {
+            @Override
+            public void onGlobalLayout()
+            {
+                final ViewGroup.LayoutParams lp = stopButtonContainer.getLayoutParams();
+                lp.height = dial.getHeight();
+                stopButtonContainer.setLayoutParams(lp);
+                stopButtonContainer.requestLayout();
+            }
+        });
     }
 
     private void buildColourableList(final ViewGroup container)
@@ -512,7 +530,10 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private boolean createNotificationItem(final int uidAlarm)
     {
-        if (!this.showNotification) return false;
+        if (!this.showNotification)
+        {
+            return false;
+        }
 
         final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification notify = new Notification(R.drawable.statusicon, notificationTitle, Globals.getTime());
@@ -686,6 +707,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     }
 
     private int lastProgress = -1;
+
     @Override
     public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser)
     {
