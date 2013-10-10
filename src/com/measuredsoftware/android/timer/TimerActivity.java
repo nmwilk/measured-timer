@@ -374,7 +374,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             {
                 final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.otherswlink)));
 
-                startActivity(intent);
+                try
+                {
+                    startActivity(intent);
+                }
+                catch (final Exception e)
+                {
+                    // ignore.
+                }
                 break;
             }
             case R.id.settings_button:

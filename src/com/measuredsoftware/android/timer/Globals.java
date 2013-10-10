@@ -17,7 +17,7 @@ public class Globals
     public static final boolean DEBUG_LAYOUT = false;
     
     /** use seconds instead of minutes */
-    public static final boolean DEBUG_QUICK_TIME = true;
+    public static final boolean DEBUG_QUICK_TIME = false;
     
     /* the name of the font resource */
     private static final String FONT_STRING = "creative.ttf";

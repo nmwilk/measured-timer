@@ -129,7 +129,7 @@ public class TimerView extends TouchRotatableView implements Colourable
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
     {
-        setMeasuredDimension(size, size);
+        setMeasuredDimension(size, size - touchGlow.getIntrinsicHeight() / 2);
     }
 
     @Override
