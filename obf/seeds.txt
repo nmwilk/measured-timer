@@ -10,11 +10,11 @@ com.measuredsoftware.android.library.gui.NonScrollListView
 com.measuredsoftware.android.library.gui.NonScrollListView: NonScrollListView(android.content.Context,android.util.AttributeSet)
 com.measuredsoftware.android.timer.DigitalTimeTextView
 com.measuredsoftware.android.timer.DigitalTimeTextView: DigitalTimeTextView(android.content.Context,android.util.AttributeSet)
-com.measuredsoftware.android.timer.RotatableImageView
-com.measuredsoftware.android.timer.RotatableImageView: RotatableImageView(android.content.Context,android.util.AttributeSet)
+com.measuredsoftware.android.timer.TouchRotatableView
+com.measuredsoftware.android.timer.TouchRotatableView: RotatableImageView(android.content.Context,android.util.AttributeSet)
 com.measuredsoftware.android.timer.TimerView
 com.measuredsoftware.android.timer.TimerView: TimerView(android.content.Context,android.util.AttributeSet)
-com.measuredsoftware.android.timer.RotatableImageView: RotatableImageView(android.content.Context,android.util.AttributeSet)
+com.measuredsoftware.android.timer.TouchRotatableView: RotatableImageView(android.content.Context,android.util.AttributeSet)
 com.measuredsoftware.android.library.gui.MusicProgressBar
 com.measuredsoftware.android.library.gui.MusicProgressBar: MusicProgressBar(android.content.Context,android.util.AttributeSet,int)
 com.measuredsoftware.android.library.gui.NameEditText

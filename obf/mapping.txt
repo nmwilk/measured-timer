@@ -45,7 +45,7 @@ com.measuredsoftware.android.timer.HelpDialog -> com.measuredsoftware.android.ti
     void onStop() -> onStop
     boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
     void onClick(android.view.View) -> onClick
-com.measuredsoftware.android.timer.RotatableImageView -> com.measuredsoftware.android.timer.RotatableImageView:
+com.measuredsoftware.android.timer.TouchRotatableView -> com.measuredsoftware.android.timer.TouchRotatableView:
     float mAngle -> a
     float mAnglePrev -> l
     float mStartAngle1 -> b

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="top_bar_height">55dp</dimen>
-    <dimen name="timers_list_margin">6dp</dimen>
-    <dimen name="top_bar_button_margin">13dp</dimen>
-    <dimen name="timer_margin">14dp</dimen>
+    <dimen name="top_bar_height">35dp</dimen>
+    <dimen name="timers_list_margin">4dp</dimen>
+    <dimen name="top_bar_button_margin">8dp</dimen>
     <dimen name="cancel_button_padding">0dp</dimen>
-    <dimen name="countdown_text_size">28px</dimen>
-    <dimen name="target_text_size">24px</dimen>
-    <dimen name="active_timer_height">38dp</dimen>
-    <dimen name="active_timer_margin_vert">3dp</dimen>
-    <dimen name="active_timer_margin_horiz">8dp</dimen>
+    <dimen name="countdown_text_size">20px</dimen>
+    <dimen name="target_text_size">17px</dimen>
+    <dimen name="active_timer_height">36px</dimen>
+    <dimen name="active_timer_margin_vert">2dp</dimen>
+    <dimen name="active_timer_margin_horiz">5dp</dimen>
     <dimen name="target_time_button_margin_left">4dp</dimen>
     <dimen name="cancel_button_margin_right">0dp</dimen>
 

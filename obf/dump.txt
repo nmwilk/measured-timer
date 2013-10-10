@@ -1891,7 +1891,7 @@ _____________________________________________________________________
   Major version: 0x31
   Minor version: 0x0
   Access flags:  0x21
-    = public class com.measuredsoftware.android.timer.RotatableImageView extends android.widget.ImageView
+    = public class com.measuredsoftware.android.timer.TouchRotatableView extends android.widget.ImageView
 
 Interfaces (count = 0):
 
@@ -6584,7 +6584,7 @@ _____________________________________________________________________
   Major version: 0x31
   Minor version: 0x0
   Access flags:  0x21
-    = public class com.measuredsoftware.android.timer.TimerView extends com.measuredsoftware.android.timer.RotatableImageView
+    = public class com.measuredsoftware.android.timer.TimerView extends com.measuredsoftware.android.timer.TouchRotatableView
 
 Interfaces (count = 0):
 

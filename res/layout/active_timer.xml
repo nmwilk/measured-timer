@@ -17,7 +17,6 @@
         android:id="@+id/countdown_time"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
         android:gravity="center"
         android:clickable="false"
         android:textSize="@dimen/countdown_text_size"

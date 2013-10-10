@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="top_bar_height">75dp</dimen>
+    <dimen name="top_bar_height">50dp</dimen>
     <dimen name="timers_list_margin">6dp</dimen>
     <dimen name="top_bar_button_margin">13dp</dimen>
     <dimen name="cancel_button_padding">0dp</dimen>
-    <dimen name="countdown_text_size">24sp</dimen>
-    <dimen name="target_text_size">20sp</dimen>
-    <dimen name="active_timer_height">55dp</dimen>
+    <dimen name="countdown_text_size">28px</dimen>
+    <dimen name="target_text_size">24px</dimen>
+    <dimen name="active_timer_height">38dp</dimen>
     <dimen name="active_timer_margin_vert">3dp</dimen>
-    <dimen name="active_timer_margin_horiz">6dp</dimen>
+    <dimen name="active_timer_margin_horiz">8dp</dimen>
     <dimen name="target_time_button_margin_left">4dp</dimen>
     <dimen name="cancel_button_margin_right">0dp</dimen>
 
     <!-- same height as dial image -->
-    <dimen name="stop_container_height">584px</dimen>
-    <dimen name="stop_button_height">260px</dimen>
+    <dimen name="stop_container_height">292dp</dimen>
+    <dimen name="stop_button_height">130dp</dimen>
     <dimen name="stop_button_text_size">50dp</dimen>
-    <dimen name="hue_slider_margin">20dp</dimen>
+    <dimen name="hue_slider_margin">10dp</dimen>
 
 </resources>

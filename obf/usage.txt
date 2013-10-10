@@ -128,7 +128,7 @@ com.measuredsoftware.android.timer.R$layout
 com.measuredsoftware.android.timer.R$raw
 com.measuredsoftware.android.timer.R$string
 com.measuredsoftware.android.timer.R$xml
-com.measuredsoftware.android.timer.RotatableImageView:
+com.measuredsoftware.android.timer.TouchRotatableView:
     public static final int MAX_ANGLE
 com.measuredsoftware.android.timer.TimerActivity:
     public static final java.lang.String ALARM_ACTION
