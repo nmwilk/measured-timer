@@ -132,7 +132,7 @@ public class TimerView extends TouchRotatableView implements Colourable
         final float position = (bezel.getIntrinsicWidth() + innerRing.getIntrinsicWidth()) / 4;
 
         // minus a little bit!
-        return (int) (position * 0.92);
+        return (int) (position * 0.96);
     }
 
     @Override

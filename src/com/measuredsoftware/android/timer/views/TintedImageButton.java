@@ -6,12 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.ImageButton;
-
 import com.measuredsoftware.android.timer.ColorFilterTools;
 import com.measuredsoftware.android.timer.R;
 
@@ -33,10 +29,6 @@ public class TintedImageButton extends ImageButton
 
     private boolean filterActive;
 
-    /**
-     * @param context
-     * @param attrs
-     */
     public TintedImageButton(final Context context, final AttributeSet attrs)
     {
         super(context, attrs);
@@ -97,17 +89,6 @@ public class TintedImageButton extends ImageButton
     {
         super.setSelected(selected);
         filterActive = selected;
-    }
-
-    @Override
-    public void setPressed(boolean pressed)
-    {
-        super.setPressed(pressed);
-        
-        if (pressed)
-        {
-            filterActive = true;
-        }
     }
 
     @Override

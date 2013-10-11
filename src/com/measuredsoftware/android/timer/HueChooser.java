@@ -22,9 +22,6 @@ public class HueChooser
 
     /** 
      * @param anchor View to anchor the popup below.
-     * @param currentValue 
-     * @param dismissListener 
-     * @param seekListener 
      */
     public HueChooser(final View anchor, final float currentValue, final OnDismissListener dismissListener, final SeekBar.OnSeekBarChangeListener seekListener)
     {

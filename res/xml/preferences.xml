@@ -10,25 +10,15 @@
         android:streamType="alarm" />
         
     <CheckBoxPreference
-            android:key="usenotifications"
+            android:key="@string/prefs_key_usenotifications"
             android:title="@string/use_notifications_title"
             android:summary="@string/use_notifications_desc"
             android:defaultValue="true" />
 
     <CheckBoxPreference
-            android:key="sendstats"
+            android:key="@string/prefs_key_sendstats"
             android:title="@string/send_anon_stats_title"
             android:summary="@string/send_anon_stats_desc"
             android:defaultValue="true" />
-    
-    <!-- 
-    <RingtonePreference 
-        android:key="ringtone"
-        android:title="@string/alarm_tone_title"
-        android:summary="@string/alarm_tone_desc"
-        android:ringtoneType="alarm"
-        android:showDefault=""
-        />
-         -->
-            
+
 </PreferenceScreen>

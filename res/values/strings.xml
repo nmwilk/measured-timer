@@ -15,4 +15,6 @@
     <string name="notification_exdesc">Timer active - tap to view</string>
     <string name="alarm_tone_title">Alarm Tone</string>
     <string name="alarm_tone_desc">Choose the alarm tone</string>
+    <string name="prefs_key_usenotifications">usenotifications</string>
+    <string name="prefs_key_sendstats">sendstats</string>
 </resources>

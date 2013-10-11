@@ -25,6 +25,7 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 import com.measuredsoftware.android.timer.views.*;
@@ -60,8 +61,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     /* how many times have the set the timer */
     private static final String PREFS_VAL_USAGECOUNT = "timercount";
 
-    private static final String PREFS_VAL_USE_NOTIFICATIONS = "usenotifications";
-
     private static final String PREFS_VAL_HUE = "hue";
 
     private static String notificationTitle;
@@ -71,6 +70,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private float currentHue;
     private int usageCount;
     private boolean showNotification;
+    private boolean sendStats;
 
     private TimerView dial;
     private ImageView mainBg;
@@ -198,7 +198,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         currentHue = prefs.getFloat(PREFS_VAL_HUE, 0.5f);
         usageCount = prefs.getInt(PREFS_VAL_USAGECOUNT, 0);
-        showNotification = prefs.getBoolean(PREFS_VAL_USE_NOTIFICATIONS, true);
+        loadPrefsOptions();
 
         final ViewGroup containerView = (ViewGroup)findViewById(R.id.container_view);
         buildColourableList(containerView);
@@ -218,6 +218,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 stopButtonContainer.requestLayout();
             }
         });
+    }
+
+    private void loadPrefsOptions()
+    {
+        showNotification = prefs.getBoolean(getResources().getString(R.string.prefs_key_usenotifications), true);
+        sendStats = prefs.getBoolean(getResources().getString(R.string.prefs_key_sendstats), true);
     }
 
     private void buildColourableList(final ViewGroup container)
@@ -396,6 +402,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 if (hueChooser == null)
                 {
                     hueChooser = new HueChooser(topBar, currentHue, this, this);
+                    hueButton.setSelected(true);
                 }
                 else
                 {
@@ -451,9 +458,18 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SHOW_PREFERENCES_RESULT_CODE)
         {
+            final boolean prevSendStats = sendStats;
+
+            loadPrefsOptions();
+
             if (!showNotification)
             {
                 removeNotificationItem(null);
+            }
+
+            if (prevSendStats != sendStats)
+            {
+                GoogleAnalytics.getInstance(this).setAppOptOut(!sendStats);
             }
         }
     }
