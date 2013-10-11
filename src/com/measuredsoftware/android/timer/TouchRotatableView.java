@@ -17,7 +17,7 @@ public class TouchRotatableView extends View
 {
     private final RotationModel rotationModel;
 
-    protected boolean multitouchActive; // >1 finger down currently?
+    private boolean multitouchActive; // >1 finger down currently?
 
     private Bitmap ignoreMask;
     private int ignoreMaskWidth;
@@ -27,7 +27,7 @@ public class TouchRotatableView extends View
     private boolean usedDownAction;
     private float anglePrev = Float.MAX_VALUE;
 
-    public TouchRotatableView(Context context, AttributeSet attrs)
+    public TouchRotatableView(final Context context, final AttributeSet attrs)
     {
         super(context, attrs);
 
@@ -41,7 +41,7 @@ public class TouchRotatableView extends View
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh)
+    protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh)
     {
         super.onSizeChanged(w, h, oldw, oldh);
 
@@ -68,10 +68,20 @@ public class TouchRotatableView extends View
         rotationModel.setMaxAngle((int) maximumTotalAngle);
     }
 
+    protected boolean isMultitouchActive()
+    {
+        return multitouchActive;
+    }
+
+    protected void setMultitouchActive(final boolean multitouchActive)
+    {
+        this.multitouchActive = multitouchActive;
+    }
+
     /**
      * @param incPerSection degrees per section
      */
-    public void setIncrement(float incPerSection)
+    public void setIncrement(final float incPerSection)
     {
         rotationModel.setSnapTo((int) incPerSection);
     }
@@ -115,7 +125,7 @@ public class TouchRotatableView extends View
                 }
 
                 rotationModel.setTouch(1, (int) event.getX(1), (int) event.getY(1));
-                multitouchActive = true;
+                setMultitouchActive(true);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!usedDownAction)
@@ -127,7 +137,7 @@ public class TouchRotatableView extends View
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 rotationModel.setTouchEnded(1);
-                multitouchActive = false;
+                setMultitouchActive(false);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (!usedDownAction)
@@ -178,7 +188,7 @@ public class TouchRotatableView extends View
         return (float) rotationModel.getDisplayAngle();
     }
 
-    public void setIgnoreMask(Bitmap ignoreMask, boolean useOnlyOnDown)
+    public void setIgnoreMask(final Bitmap ignoreMask, final boolean useOnlyOnDown)
     {
         this.ignoreMask = ignoreMask;
         ignoreMaskWidth = 0;

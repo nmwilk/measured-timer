@@ -227,7 +227,7 @@ public class TimerView extends TouchRotatableView implements Colourable
                     settingTime = true;
                     break;
                 case MotionEvent.ACTION_UP:
-                    if (!multitouchActive)
+                    if (!isMultitouchActive())
                     {
                         settingTime = false;
                         // start the timer
