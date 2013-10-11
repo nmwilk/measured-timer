@@ -13,6 +13,8 @@ import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
  */
 public class Globals
 {
+    public static final float DEFAULT_HUE_VALUE = 0.4f;
+
     /** */
     public static final boolean DEBUG_LAYOUT = false;
     

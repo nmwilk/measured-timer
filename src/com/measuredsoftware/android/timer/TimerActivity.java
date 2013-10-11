@@ -196,7 +196,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         activeTimers.setAlarms(endTimes);
         activeTimers.updateAlarms();
 
-        currentHue = prefs.getFloat(PREFS_VAL_HUE, 0.5f);
+        currentHue = prefs.getFloat(PREFS_VAL_HUE, Globals.DEFAULT_HUE_VALUE);
         usageCount = prefs.getInt(PREFS_VAL_USAGECOUNT, 0);
         loadPrefsOptions();
 
