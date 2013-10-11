@@ -14,9 +14,11 @@ public class RotationModel
     private int snapTo;
 
     private int pivotX;
-    private int pivotY;
 
+    private int pivotY;
     private final int[] lastAngles = new int[MAX_TOUCHES];
+
+    private float[] angleFactor = new float[MAX_TOUCHES];
 
     private double angle;
 
@@ -27,12 +29,23 @@ public class RotationModel
         minAngle = Integer.MIN_VALUE;
         maxAngle = Integer.MAX_VALUE;
         snapTo = 1;
+
+        angleFactor[0] = 1.0f;
+        angleFactor[1] = 1.0f;
     }
 
     public final void setAngle(final double angle)
     {
         reset();
         this.angle = angle;
+    }
+
+    public final void setAngleFactor(final int touchIndex, final float angleFactor)
+    {
+        if (validTouchBounds(touchIndex))
+        {
+            this.angleFactor[touchIndex] = angleFactor;
+        }
     }
 
     private void reset()
@@ -74,11 +87,13 @@ public class RotationModel
         if (validTouchBounds(touchIndex))
         {
             // get angleCurrent of current touch from pivot point.
-            final int touchedAngle = Math.round(getAngleFromVelocity(touchX - pivotX, touchY - pivotY));
+            final int vx = touchX - pivotX;
+            final int vy = touchY - pivotY;
+            final int touchedAngle = Math.round(getAngleFromVelocity(vx, vy));
 
             if (lastAngles[touchIndex] != TOUCH_NOT_STARTED)
             {
-                final float angleDifference = getAngleDifference(touchedAngle, lastAngles[touchIndex]);
+                final float angleDifference = getAngleDifference(touchedAngle, lastAngles[touchIndex]) * angleFactor[touchIndex];
                 angle += angleDifference;
 
                 angle = limitValue(angle, minAngle, maxAngle);
