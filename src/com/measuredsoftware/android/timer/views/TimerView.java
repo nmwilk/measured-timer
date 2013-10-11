@@ -95,11 +95,13 @@ public class TimerView extends TouchRotatableView implements Colourable
 
     private ObjectAnimator glowAnimation;
 
+    // needed in addition to View.isEnabled() because that is called on start up.
+    // We only want the disable flag set to be when we disable the dial because of no room.
+    private boolean disabled;
+
     public TimerView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
-
-        setBackgroundColor(getResources().getColor(android.R.color.transparent));
 
         bezel = getResources().getDrawable(R.drawable.dial_main);
         innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
@@ -127,12 +129,6 @@ public class TimerView extends TouchRotatableView implements Colourable
         currentTimeSecs = 0;
         settingTime = false;
         alarmRinging = false;
-
-        final Drawable back = this.getBackground();
-        if (back == null)
-        {
-            throw new RuntimeException("Must supply a background to TimerView.");
-        }
 
         countdownAction = false;
 
@@ -190,7 +186,7 @@ public class TimerView extends TouchRotatableView implements Colourable
         endtimePosX = countdownTimePosX;
         endtimePosY = countdownTimePosY + Math.round(textPaintCountdown.getTextSize());
 
-        updateVisibleStates();
+        updateVisibleStates(false);
     }
 
     private void setDrawableBoundsCentred(final Drawable drawable)
@@ -208,12 +204,20 @@ public class TimerView extends TouchRotatableView implements Colourable
         eventListener = listener;
     }
 
-    @Override
-    public void setEnabled(final boolean enabled)
+    public void setDisabled(final boolean disabled, final boolean animated)
     {
-        super.setEnabled(enabled);
+        super.setEnabled(!disabled);
 
-        updateVisibleStates();
+        if (disabled != this.disabled)
+        {
+            this.disabled = disabled;
+            updateVisibleStates(animated);
+        }
+    }
+
+    public boolean isDisabled()
+    {
+        return disabled;
     }
 
     @Override
@@ -437,7 +441,7 @@ public class TimerView extends TouchRotatableView implements Colourable
         invalidate();
     }
 
-    private void updateVisibleStates()
+    private void updateVisibleStates(final boolean animate)
     {
         final float from;
         final float to;
@@ -452,13 +456,19 @@ public class TimerView extends TouchRotatableView implements Colourable
             to = ALPHA_DISABLED;
         }
 
-        final ObjectAnimator fader = ObjectAnimator.ofFloat(this, "dialElementAlpha", from, to);
-        fader.setDuration(DIAL_ELEMENT_FADE_DURATION);
-        fader.setInterpolator(new DecelerateInterpolator());
-        fader.start();
+        if (animate)
+        {
+            final ObjectAnimator fader = ObjectAnimator.ofFloat(this, "dialElementAlpha", from, to);
+            fader.setDuration(DIAL_ELEMENT_FADE_DURATION);
+            fader.setInterpolator(new DecelerateInterpolator());
+            fader.start();
+        }
+        else
+        {
+            setDialElementAlpha(to);
+        }
     }
 
-    @SuppressWarnings("UnusedDeclaration") // used via property animator.
     public void setDialElementAlpha(final float alpha)
     {
         for (final Drawable dialElement : dialDrawables)

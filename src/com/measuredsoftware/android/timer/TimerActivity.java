@@ -15,12 +15,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
-import android.view.*;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -28,8 +27,8 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
+import com.measuredsoftware.android.timer.viewgroups.ContainerView;
 import com.measuredsoftware.android.timer.views.*;
-import com.measuredsoftware.android.timer.views.ActiveTimerListView.LayoutListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -62,6 +61,9 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private static final String PREFS_VAL_USAGECOUNT = "timercount";
 
     private static final String PREFS_VAL_HUE = "hue";
+    public static final int BACKGROUND_FADE_DURATION = 100;
+    public static final float BACKGROUND_ALPHA_DIM = 0.75f;
+    public static final float BACKGROUND_ALPHA_FULL = 1.0f;
 
     private static String notificationTitle;
     private static String notificationExTitle;
@@ -72,26 +74,21 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private boolean showNotification;
     private boolean sendStats;
 
+    private ContainerView contentContainer;
     private TimerView dial;
-    private ImageView mainBg;
     private ActiveTimerListView activeTimers;
     private StopButton stopButton;
-    private View stopButtonContainer;
     private TopBar topBar;
 
     private View hueButton;
 
     private final List<Colourable> colourableViews = new ArrayList<Colourable>();
-    private Animation fadeInBackground;
 
-    private Animation fadeOutBackground;
-
-    private TickThread tickThread = null;
+    private TickThread tickThread;
 
     private HueChooser hueChooser;
     private boolean alarmRinging;
     private boolean startedByIntent;
-
 
     private boolean spaceInList = true;
 
@@ -102,24 +99,31 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private static class TickHandler extends Handler
     {
-        private final WeakReference<TimerActivity> parent;
+        private WeakReference<TimerActivity> parent;
 
         public TickHandler(final TimerActivity parent)
         {
             this.parent = new WeakReference<TimerActivity>(parent);
         }
 
+        public void stop()
+        {
+            this.parent = null;
+        }
+
         @Override
         public void handleMessage(Message msg)
         {
-            parent.get().getDial().updateNowTime();
-            parent.get().getTimerList().tickAlarms();
+            if (parent != null && parent.get() != null)
+            {
+                parent.get().getDial().updateNowTime();
+                parent.get().getTimerList().tickAlarms();
+            }
         }
     }
 
     private static TickHandler tickHandler;
 
-    private ObjectAnimator glowAnimation;
     private final Handler spareHandler = new Handler();
 
     /**
@@ -155,36 +159,22 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         setContentView(R.layout.app);
 
-        // create animations
-        fadeInBackground = AnimationUtils.loadAnimation(this, R.anim.fade_in_slight);
-        fadeOutBackground = AnimationUtils.loadAnimation(this, R.anim.fade_out_slight);
+        contentContainer = (ContainerView) findViewById(R.id.content_container);
 
-        mainBg = (ImageView) findViewById(R.id.back);
-
-        dial = (TimerView) findViewById(R.id.the_dial);
+        dial = contentContainer.getTimerView();
         dial.setOnSetValueChangedListener(this);
+        dial.setDisabled(true, false);
 
-        activeTimers = (ActiveTimerListView) findViewById(R.id.timer_list);
-
-        activeTimers.setLayoutListener(new LayoutListener()
-        {
-            @Override
-            public void wasLayedOut(final boolean layoutChanged)
-            {
-                checkRemainingSpaceInList();
-            }
-        });
+        activeTimers = contentContainer.getListView();
 
         topBar = (TopBar) findViewById(R.id.top_bar);
         topBar.setOnClickListener(this);
 
         hueButton = topBar.findViewById(R.id.hue_button);
 
-        stopButtonContainer = findViewById(R.id.stop_button_container);
-        stopButton = (StopButton) findViewById(R.id.stop_button);
+        final ViewGroup stopButtonContainer = (ViewGroup) contentContainer.getStopView();
+        stopButton = (StopButton)stopButtonContainer.findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
-
-        tickThread = null;
 
         firstChange = true;
 
@@ -200,24 +190,8 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         usageCount = prefs.getInt(PREFS_VAL_USAGECOUNT, 0);
         loadPrefsOptions();
 
-        final ViewGroup containerView = (ViewGroup)findViewById(R.id.container_view);
+        final ViewGroup containerView = (ViewGroup) findViewById(R.id.container_view);
         buildColourableList(containerView);
-
-        final DisplayMetrics dm = new DisplayMetrics();
-        ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(dm);
-
-        final ViewTreeObserver observer = containerView.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
-        {
-            @Override
-            public void onGlobalLayout()
-            {
-                final ViewGroup.LayoutParams lp = stopButtonContainer.getLayoutParams();
-                lp.height = dial.getHeight();
-                stopButtonContainer.setLayoutParams(lp);
-                stopButtonContainer.requestLayout();
-            }
-        });
     }
 
     private void loadPrefsOptions()
@@ -245,15 +219,15 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     protected void checkRemainingSpaceInList()
     {
-        final int itemHeight = activeTimers.getTimerHeight();
-        final int containerHeight = activeTimers.getTotalHeight();
-        final int listHeight = activeTimers.getChildCount() * itemHeight;
-        spaceInList = containerHeight == 0 || (listHeight + itemHeight) < containerHeight;
+        final int containerHeight = activeTimers.getMeasuredHeight();
 
-        if (dial.isEnabled() != spaceInList)
+        final int itemHeight = activeTimers.getTimerHeight();
+        final int listHeight = activeTimers.getChildCount() * itemHeight;
+        if (containerHeight == 0)
         {
-            dial.setEnabled(spaceInList);
+            throw new RuntimeException("container height is zero.");
         }
+        spaceInList = (listHeight + itemHeight) < containerHeight;
     }
 
     protected TimerView getDial()
@@ -270,6 +244,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     protected void onDestroy()
     {
         super.onDestroy();
+        tickHandler.stop();
         if (alarmRinging)
         {
             stopAlarmRinging();
@@ -305,6 +280,28 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     }
 
     @Override
+    public void onWindowFocusChanged(final boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus)
+        {
+            checkRemainingSpaceInList();
+            spareHandler.postDelayed(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (dial.isDisabled() == spaceInList)
+                    {
+                        dial.setDisabled(!spaceInList, true);
+                    }
+                }
+            }, 250);
+        }
+    }
+
+    @Override
     protected void onResume()
     {
         super.onResume();
@@ -322,8 +319,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         closeActiveHueChooser();
 
-        dial.setEnabled(spaceInList);
-
         if (!alarmRinging)
         {
             final Runnable animator = new Runnable()
@@ -331,12 +326,15 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 @Override
                 public void run()
                 {
-                    glowAnimation = ObjectAnimator.ofFloat(dial, "dotAnimate", 0f, 1f);
-                    glowAnimation.setDuration(3000);
-                    glowAnimation.setRepeatMode(ObjectAnimator.RESTART);
-                    glowAnimation.setRepeatCount(2);
-                    glowAnimation.start();
-                    dial.setGlowAnimation(glowAnimation);
+                    if (spaceInList)
+                    {
+                        final ObjectAnimator glowAnimation = ObjectAnimator.ofFloat(dial, "dotAnimate", 0f, 1f);
+                        glowAnimation.setDuration(3000);
+                        glowAnimation.setRepeatMode(ObjectAnimator.RESTART);
+                        glowAnimation.setRepeatCount(2);
+                        glowAnimation.start();
+                        dial.setGlowAnimation(glowAnimation);
+                    }
                 }
             };
             spareHandler.postDelayed(animator, 1000);
@@ -479,7 +477,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         if (firstChange)
         {
-            this.fadeOutBackground();
+            fadeBackground(false);
             firstChange = false;
         }
     }
@@ -488,7 +486,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     public void started(final int seconds)
     {
         firstChange = true;
-        this.fadeInBackground();
+        fadeBackground(true);
         if (seconds > 0)
         {
             ++usageCount;
@@ -525,6 +523,13 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         writeEndTimesToPrefs();
         activeTimers.updateAlarms();
+        checkRemainingSpaceInList();
+
+        if (dial.isDisabled() == spaceInList)
+        {
+            dial.setDisabled(!spaceInList, true);
+            dial.stopGlowAnimation();
+        }
     }
 
     private void stopAlarmRinging()
@@ -653,14 +658,31 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         }
     }
 
-    private void fadeOutBackground()
+    private void fadeBackground(final boolean fadeIn)
     {
-        mainBg.startAnimation(fadeOutBackground);
+        final float from;
+        final float to;
+
+        if (fadeIn)
+        {
+            from = BACKGROUND_ALPHA_DIM;
+            to = BACKGROUND_ALPHA_FULL;
+        }
+        else
+        {
+            from = BACKGROUND_ALPHA_FULL;
+            to = BACKGROUND_ALPHA_DIM;
+        }
+
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(this, "backgroundAlpha", from, to);
+        animator.setDuration(BACKGROUND_FADE_DURATION);
+        animator.start();
     }
 
-    private void fadeInBackground()
+    @SuppressWarnings("UnusedDeclaration") // used via property animator.
+    public void setBackgroundAlpha(final float alpha)
     {
-        mainBg.startAnimation(fadeInBackground);
+        contentContainer.getBackground().setAlpha((int) (255 * alpha));
     }
 
     protected class TickThread extends Thread

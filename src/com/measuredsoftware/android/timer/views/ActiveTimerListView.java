@@ -6,11 +6,8 @@ import android.graphics.ColorMatrixColorFilter;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-
 import com.measuredsoftware.android.timer.ColorFilterTools;
 import com.measuredsoftware.android.timer.Colourable;
-import com.measuredsoftware.android.timer.Globals;
 import com.measuredsoftware.android.timer.R;
 import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
@@ -23,15 +20,6 @@ import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
  */
 public class ActiveTimerListView extends LinearLayout implements Colourable
 {
-    /** */
-    public interface LayoutListener
-    {
-        /** the View was laid out and sizes can be retrieved now */
-        void wasLayedOut(boolean layoutChanged);
-    }
-    
-    private static final String TAG = "ATLV";
-    
     private static ActiveTimerListView.LayoutParams lp;
 
     private int childHeight;
@@ -40,25 +28,10 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
 
     private OnClickListener cancelClickListener;
     
-    private LayoutListener layoutListener;
-    
-    /**
-     * @param context
-     * @param attrs
-     */
     public ActiveTimerListView(final Context context, final AttributeSet attrs)
     {
         super(context, attrs);
         setOrientation(VERTICAL);
-
-        if (Globals.DEBUG_LAYOUT)
-        {
-            setBackgroundColor(0x40FFFF00);
-        }
-        else
-        {
-            setBackgroundDrawable(null);
-        }
 
         if (lp == null)
         {
@@ -68,58 +41,25 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
             final int vertMargin = getResources().getDimensionPixelSize(R.dimen.active_timer_margin_vert);
             lp.setMargins(horizMargin, vertMargin, horizMargin, vertMargin);
         }
-        
-//        final LayoutTransition transition = getLayoutTransition();
-//        if (transition != null)
-//        {
-//            Log.d(TAG, "CHANGE_APPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_APPEARING).toString());
-//            Log.d(TAG, "CHANGE_DISAPPEARING " + transition.getInterpolator(LayoutTransition.CHANGE_DISAPPEARING).toString());
-//            //Log.d(TAG, "CHANGING " + transition.getInterpolator(LayoutTransition.CHANGING).toString());
-//            Log.d(TAG, "APPEARING " + transition.getInterpolator(LayoutTransition.APPEARING).toString());
-//            Log.d(TAG, "DISAPPEARING " + transition.getInterpolator(LayoutTransition.DISAPPEARING).toString());
-//            
-//            transition.setInterpolator(LayoutTransition.CHANGE_APPEARING, new DecelerateInterpolator(2f));
-//            transition.setInterpolator(LayoutTransition.CHANGE_DISAPPEARING, new DecelerateInterpolator(2f));
-//        }
-        
+
         childHeight = 0;
     }
     
-    /**
-     * @param cancelClickListener
-     */
     public void setCancelClickListener(final View.OnClickListener cancelClickListener)
     {
         this.cancelClickListener = cancelClickListener;
     }
-    
-    /**
-     * @param layoutListener
-     */
-    public void setLayoutListener(final LayoutListener layoutListener)
-    {
-        this.layoutListener = layoutListener;
-    }
-    
-    /**
-     * @param alarms
-     */
+
     public void setAlarms(final EndTimes alarms)
     {
         this.alarms = alarms;
     }
     
-    /**
-     * @return The height of a single child including top and bottom margins.
-     */
     public int getTimerHeight()
     {
         return childHeight;
     }
-    
-    /**
-     * 
-     */
+
     public void tickAlarms()
     {
         for (int i = 0; i < getChildCount(); i++)
@@ -220,22 +160,6 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
         }
     }
 
-    /**
-     * @param timerId
-     */
-    public void removeTimer(final int timerId)
-    {
-        for (int i = 0; i < getChildCount(); i++)
-        {
-            final ActiveTimerView timer = (ActiveTimerView) getChildAt(i);
-            if (timer.getAlarm().uid == timerId)
-            {
-                this.removeViewAt(i);
-                break;
-            }
-        }
-    }
-
     @Override
     protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b)
     {
@@ -252,29 +176,8 @@ public class ActiveTimerListView extends LinearLayout implements Colourable
                 childHeight += lp.topMargin;
             }
         }
-        
-        if (layoutListener != null)
-        { 
-            layoutListener.wasLayedOut(changed);
-        }
     }
 
-    /**
-     * @return Height plus the top and bottom margins.
-     */
-    public int getTotalHeight()
-    {
-        int topMargin = 0;
-        int bottomMargin = 0;
-        final RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)getLayoutParams();
-        if (lp != null)
-        {
-            bottomMargin = lp.bottomMargin;
-            topMargin = lp.topMargin;
-        }
-        return getHeight() + topMargin + bottomMargin;
-    }
-    
     private ColorMatrixColorFilter filter;
     
     @Override

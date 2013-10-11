@@ -1,69 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/container_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <com.measuredsoftware.android.timer.views.TopBar
-        android:id="@+id/top_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/top_bar_height"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/top_bar_back" />
-
-    <!-- everything below the top bar -->
-
-    <RelativeLayout
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/container_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_bar"
-        android:background="#000" >
+        android:background="#000">
 
-        <com.measuredsoftware.android.timer.views.Background
-            android:id="@+id/back"
+    <com.measuredsoftware.android.timer.views.TopBar
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/top_bar_height"
+            android:background="@drawable/top_bar_back"/>
+
+    <!-- everything below the top bar -->
+    <com.measuredsoftware.android.timer.viewgroups.ContainerView
+            android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/background" />
+            android:layout_marginTop="@dimen/top_bar_height"
+            android:background="@drawable/background"/>
 
-        <com.measuredsoftware.android.timer.views.TimerView
-            android:id="@+id/the_dial"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="@dimen/timer_margin" />
-
-        <FrameLayout
-            android:id="@+id/stop_button_container"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/stop_container_height"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="@dimen/timer_margin"
-            android:background="@null" >
-
-            <com.measuredsoftware.android.timer.views.StopButton
-                android:id="@+id/stop_button"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/stop_button_height"
-                android:layout_gravity="center"
-                android:background="@drawable/stop_button_back"
-                android:gravity="center"
-                android:text="@string/stop"
-                android:textColor="@color/tint"
-                android:textSize="@dimen/stop_button_text_size"
-                android:visibility="invisible" />
-        </FrameLayout>
-
-        <com.measuredsoftware.android.timer.views.ActiveTimerListView
-            android:id="@+id/timer_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@id/the_dial"
-            android:layout_gravity="center_vertical"
-            android:layout_marginBottom="@dimen/timers_list_margin"
-            android:layout_marginTop="@dimen/timers_list_margin"
-            android:animateLayoutChanges="true" />
-    </RelativeLayout>
-
-</RelativeLayout>
+</FrameLayout>

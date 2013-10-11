@@ -27,7 +27,6 @@ public class ActiveTimerView extends RelativeLayout
     private final TextView targetTextView;
 
     /**
-     * @param context
      * @param alarm
      *            The model.
      * @param cancelClickListener
@@ -72,15 +71,6 @@ public class ActiveTimerView extends RelativeLayout
     }
 
     /**
-     * @param time
-     *            the formatted string.
-     */
-    public void setCountdownTime(final String time)
-    {
-        countdownTextView.setText(time);
-    }
-
-    /**
      * @return the model instance.
      */
     public Alarm getAlarm()
@@ -99,9 +89,6 @@ public class ActiveTimerView extends RelativeLayout
         }
     }
 
-    /**
-     * @param colorFilter
-     */
     public void setHue(final ColorFilter colorFilter)
     {
         targetTextView.getPaint().setColorFilter(colorFilter);
