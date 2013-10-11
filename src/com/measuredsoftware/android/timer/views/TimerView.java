@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import com.measuredsoftware.android.library2.utils.CoordTools;
 import com.measuredsoftware.android.library2.utils.MathTools;
@@ -32,6 +33,7 @@ public class TimerView extends TouchRotatableView implements Colourable
          * rotation started
          */
         void started(int seconds);
+
         /**
          * more rotation occurred
          */
@@ -43,6 +45,11 @@ public class TimerView extends TouchRotatableView implements Colourable
         void cancelled();
 
     }
+
+    private static final long DIAL_ELEMENT_FADE_DURATION = 500;
+
+    private static final float ALPHA_ENABLED = 1f;
+    private static final float ALPHA_DISABLED = 0.4f;
 
     protected static final float MAX_TOTAL_ANGLE = (360 * 72) - 1;
 
@@ -83,6 +90,9 @@ public class TimerView extends TouchRotatableView implements Colourable
     private final Drawable bezel;
     private final Drawable spinner;
 
+    // for convenience, holds the drawable that make up the dial.
+    private final Drawable[] dialDrawables;
+
     private ObjectAnimator glowAnimation;
 
     public TimerView(Context context, AttributeSet attrs)
@@ -95,6 +105,12 @@ public class TimerView extends TouchRotatableView implements Colourable
         innerRing = getResources().getDrawable(R.drawable.dial_inner_ring);
         spinner = getResources().getDrawable(R.drawable.dial_spinner);
         touchGlow = getResources().getDrawable(R.drawable.touch_glow);
+
+        dialDrawables = new Drawable[]{bezel, innerRing, spinner};
+        for (final Drawable dialElement : dialDrawables)
+        {
+            dialElement.setCallback(this);
+        }
 
         touchGlowHyp = calculateGlowPosition();
         size = Math.round(bezel.getIntrinsicWidth() + touchGlow.getIntrinsicWidth() / 2);
@@ -423,10 +439,39 @@ public class TimerView extends TouchRotatableView implements Colourable
 
     private void updateVisibleStates()
     {
-        if (innerRing != null)
+        final float from;
+        final float to;
+        if (isEnabled())
         {
-            getBackground().setAlpha(isEnabled() ? 255 : 100);
+            from = ALPHA_DISABLED;
+            to = ALPHA_ENABLED;
         }
+        else
+        {
+            from = ALPHA_ENABLED;
+            to = ALPHA_DISABLED;
+        }
+
+        final ObjectAnimator fader = ObjectAnimator.ofFloat(this, "dialElementAlpha", from, to);
+        fader.setDuration(DIAL_ELEMENT_FADE_DURATION);
+        fader.setInterpolator(new DecelerateInterpolator());
+        fader.start();
+    }
+
+    @SuppressWarnings("UnusedDeclaration") // used via property animator.
+    public void setDialElementAlpha(final float alpha)
+    {
+        for (final Drawable dialElement : dialDrawables)
+        {
+            dialElement.setAlpha((int) (alpha * 255));
+            dialElement.invalidateSelf();
+        }
+    }
+
+    @Override
+    public void invalidateDrawable(final Drawable drawable)
+    {
+        invalidate(drawable.getBounds());
     }
 
     private void createPaints()
