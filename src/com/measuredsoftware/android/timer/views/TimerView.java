@@ -2,10 +2,7 @@ package com.measuredsoftware.android.timer.views;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -189,6 +186,8 @@ public class TimerView extends TouchRotatableView implements Colourable
         endtimePosX = countdownTimePosX;
         endtimePosY = countdownTimePosY + Math.round(textPaintCountdown.getTextSize());
 
+        scratchInvalidateRect.set(innerRing.getBounds().left, countdownTimePosY - (int)textPaintCountdown.getTextSize(), innerRing.getBounds().right, endtimePosY + (int)textPaintTarget.getFontMetrics().descent);
+
         updateVisibleStates(false);
     }
 
@@ -336,6 +335,8 @@ public class TimerView extends TouchRotatableView implements Colourable
         updateNowTime();
     }
 
+    private final Rect scratchInvalidateRect = new Rect();
+
     /**
      * update the clock
      */
@@ -343,7 +344,7 @@ public class TimerView extends TouchRotatableView implements Colourable
     {
         this.setEndClockTo(currentTimeSecs);
 
-        this.invalidate();
+        this.invalidate(scratchInvalidateRect);
     }
 
     private void setCountdownActive(final boolean b)
