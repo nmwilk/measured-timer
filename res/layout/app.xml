@@ -4,7 +4,7 @@
         android:id="@+id/container_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000">
+        android:background="@null">
 
     <com.measuredsoftware.android.timer.views.TopBar
             android:id="@+id/top_bar"
