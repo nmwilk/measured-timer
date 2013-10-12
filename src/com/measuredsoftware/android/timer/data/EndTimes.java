@@ -1,10 +1,10 @@
 package com.measuredsoftware.android.timer.data;
 
+import com.measuredsoftware.android.timer.Globals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.measuredsoftware.android.timer.Globals;
 
 /**
  * @author neil
@@ -24,20 +24,12 @@ public class EndTimes
         /** the uid (device unique) id of the alarm */
         public final int uid;
 
-        /**
-         * 
-         * @param time
-         * @param uid
-         */
         public Alarm(final long time, final int uid)
         {
             this.ms = time;
             this.uid = uid;
         }
 
-        /**
-         * @param string
-         */
         public Alarm(final String string)
         {
             final String[] items = string.split("=");
@@ -88,10 +80,6 @@ public class EndTimes
 
     private final List<Alarm> endTimes = new ArrayList<Alarm>();
 
-    /**
-     * @param time
-     * @param id
-     */
     public void addEndTime(final long time, final int id)
     {
         endTimes.add(new Alarm(time, id));
@@ -117,7 +105,6 @@ public class EndTimes
     }
 
     /**
-     * @param index
      * @return End time at the index.
      */
     public Alarm getTime(final int index)
@@ -148,7 +135,7 @@ public class EndTimes
 
         for (final Alarm endTime : endTimes)
         {
-            sb.append(endTime.toString() + ",");
+            sb.append(endTime.toString()).append(",");
         }
 
         if (sb.length() >= 2)
@@ -156,9 +143,7 @@ public class EndTimes
             sb.deleteCharAt(sb.length() - 1);
         }
 
-        final String string = sb.toString();
-
-        return string;
+        return sb.toString();
     }
 
     /**
@@ -172,7 +157,7 @@ public class EndTimes
         {
             if (!endTime.expired())
             {
-                sb.append(endTime.toString() + ",");
+                sb.append(endTime.toString()).append(",");
             }
         }
 

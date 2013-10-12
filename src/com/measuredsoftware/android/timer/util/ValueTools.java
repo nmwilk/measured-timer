@@ -1,4 +1,4 @@
-package com.measuredsoftware.android.timer;
+package com.measuredsoftware.android.timer.util;
 
 /**
  * Various generic value tools.
@@ -10,8 +10,6 @@ public class ValueTools
 {
 
     /**
-     * @param actualSpd
-     * @param maxSpd
      * @return The progress (0-1) value.
      */
     public static float getProgress(final float actualSpd, final float maxSpd)
@@ -20,9 +18,6 @@ public class ValueTools
     }
 
     /**
-     * @param current
-     * @param min
-     * @param max
      * @return The progress (0-1) of the current, in the range min to max.
      */
     public static float getProgressBetween(final float current, final float min, final float max)
@@ -31,8 +26,6 @@ public class ValueTools
     }
 
     /**
-     * @param value
-     * @param max
      * @return A limited float.
      */
     public static float limitFloat(final float value, final float max)
@@ -42,9 +35,6 @@ public class ValueTools
 
     /**
      * 
-     * @param progress
-     * @param minValue
-     * @param maxValue
      * @return The value between min and max value, at the progress specified.
      */
     public static float getValueBetween(final float progress, final float minValue, final float maxValue)
@@ -53,7 +43,6 @@ public class ValueTools
     }
 
     /**
-     * @param hexString
      * @return An array of 4 floats representing argb values (each in the range
      *         0-1).
      */
@@ -90,9 +79,6 @@ public class ValueTools
     /**
      * Ensures value is within bounds.
      * 
-     * @param value
-     * @param min
-     * @param max
      * @return value limited to between min and max.
      */
     public static float limitFloat(final float value, final float min, final float max)
@@ -115,7 +101,6 @@ public class ValueTools
     }
 
     /**
-     * @param rank
      * @return 3 -> "3rd", 127 -> "127th etc.
      */
     public static String getNumberAsFormattedRank(final int rank)
@@ -124,7 +109,6 @@ public class ValueTools
     }
     
     /**
-     * @param rank
      * @return 3 -> "3rd", 127 -> "127th etc.
      */
     public static String getNumberAsFormattedRank(final String rank)
@@ -133,7 +117,6 @@ public class ValueTools
     }
 
     /**
-     * @param rank
      * @return Just the suffix to apply. E.g. rank = 2, return "nd"
      */
     public static String getFormattedRankSuffix(int rank)

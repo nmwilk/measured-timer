@@ -1,5 +1,7 @@
 package com.measuredsoftware.android.timer.model;
 
+import com.measuredsoftware.android.timer.util.CoordTools;
+
 /**
  * Standalone model class for handling touch rotation around a pivot point.
  */
@@ -89,14 +91,14 @@ public class RotationModel
             // get angleCurrent of current touch from pivot point.
             final int vx = touchX - pivotX;
             final int vy = touchY - pivotY;
-            final int touchedAngle = Math.round(getAngleFromVelocity(vx, vy));
+            final int touchedAngle = Math.round(CoordTools.getAngleFromVelocity(vx, vy));
 
             if (lastAngles[touchIndex] != TOUCH_NOT_STARTED)
             {
-                final float angleDifference = getAngleDifference(touchedAngle, lastAngles[touchIndex]) * angleFactor[touchIndex];
+                final float angleDifference = CoordTools.getAngleDifference(touchedAngle, lastAngles[touchIndex]) * angleFactor[touchIndex];
                 angle += angleDifference;
 
-                angle = limitValue(angle, minAngle, maxAngle);
+                angle = CoordTools.limitValue(angle, minAngle, maxAngle);
             }
 
             lastAngles[touchIndex] = touchedAngle;
@@ -133,37 +135,6 @@ public class RotationModel
     {
         return touchIndex >= 0 && touchIndex < MAX_TOUCHES;
     }
-
-    public static float getAngleFromVelocity(float vx, float vy)
-    {
-        float angle = (float) Math.toDegrees(Math.atan2(vx, -vy));
-
-        if(angle < 0){
-            angle += 360;
-        }
-
-        return angle;
-    }
-
-    private static float getAngleDifference(float angleA, float angleB)
-    {
-        float difference = angleA - angleB;
-        while (difference < -180)
-        {
-            difference += 360;
-        }
-        while (difference > 180)
-        {
-            difference -= 360;
-        }
-        return difference;
-    }
-
-    private static double limitValue(final double value, final double min, final double max)
-    {
-        return Math.max(min, Math.min(value, max));
-    }
-
 
     private double snapAngle(final double angleSigned)
     {

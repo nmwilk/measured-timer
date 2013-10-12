@@ -3,6 +3,7 @@ package com.measuredsoftware.android.timer;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import com.measuredsoftware.android.timer.util.ValueTools;
 
 /**
  * Color Filter tools.
@@ -148,7 +149,7 @@ public class ColorFilterTools
                 }
                 else
                 {
-                    x = DELTA_INDEX[((int) value << 0)] * (1 - x) + DELTA_INDEX[((int) value << 0) + 1] * x;
+                    x = DELTA_INDEX[((int) value)] * (1 - x) + DELTA_INDEX[((int) value) + 1] * x;
                 }
                 x = x * 127 + 127;
             }

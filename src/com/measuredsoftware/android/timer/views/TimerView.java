@@ -2,7 +2,10 @@ package com.measuredsoftware.android.timer.views;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -10,10 +13,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import com.measuredsoftware.android.library2.utils.CoordTools;
-import com.measuredsoftware.android.library2.utils.MathTools;
-import com.measuredsoftware.android.library2.utils.ValueTools;
 import com.measuredsoftware.android.timer.*;
+import com.measuredsoftware.android.timer.util.CoordTools;
+import com.measuredsoftware.android.timer.util.MathTools;
+import com.measuredsoftware.android.timer.util.ValueTools;
 import com.measuredsoftware.android.timer.views.TimerTextView.TextType;
 
 /**
@@ -390,7 +393,7 @@ public class TimerView extends TouchRotatableView implements Colourable
     private final Interpolator interpolatorFadeIn = new AccelerateInterpolator();
     private final Interpolator interpolatorFadeOut = new AccelerateInterpolator();
     private final Interpolator interpolatorMove = new AccelerateDecelerateInterpolator();
-    private final PointF position = new PointF();
+    private final CoordTools.Velocity position = new CoordTools.Velocity();
 
     private void drawTouchDot(final Canvas canvas)
     {
@@ -402,12 +405,12 @@ public class TimerView extends TouchRotatableView implements Colourable
             if (dotProgress > (1f - PROGRESS_FADE_OUT))
             {
                 angle = PROGRESS_ANGLE_END;
-                final float p = ValueTools.progressInRange(dotProgress, 1f - PROGRESS_FADE_OUT, 1f);
+                final float p = ValueTools.getProgressBetween(dotProgress, 1f - PROGRESS_FADE_OUT, 1f);
                 alpha = 1f - interpolatorFadeOut.getInterpolation(p);
             }
             else
             {
-                final float p = ValueTools.progressInRange(dotProgress, 0f, 1f - PROGRESS_FADE_OUT);
+                final float p = ValueTools.getProgressBetween(dotProgress, 0f, 1f - PROGRESS_FADE_OUT);
                 angle = interpolatorMove.getInterpolation(p) * PROGRESS_ANGLE_END;
                 if (dotProgress < PROGRESS_FADE_IN)
                 {
@@ -420,7 +423,7 @@ public class TimerView extends TouchRotatableView implements Colourable
             }
 
 
-            CoordTools.getVelocityFromAngleAndSpeed(angle, touchGlowHyp, position);
+            CoordTools.getOffsetFromAngleAndHyp(angle, touchGlowHyp, position);
 
             touchGlow.setAlpha(Math.round(255 * alpha));
             final int left = ((getWidth() - touchGlowWidth) / 2) + Math.round(position.x);
