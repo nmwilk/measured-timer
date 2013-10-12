@@ -53,6 +53,6 @@ public class ContainerView extends RelativeLayout
     {
         super.onLayout(changed, l, t, r, b);
 
-        stopView.layout(timerView.getLeft(), timerView.getTop(), timerView.getRight(), timerView.getBottom());
+        stopView.layout(l, timerView.getTop(), r, timerView.getBottom());
     }
 }

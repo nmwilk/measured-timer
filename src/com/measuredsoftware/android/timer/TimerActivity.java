@@ -258,6 +258,12 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         dial.stopGlowAnimation();
 
+        if (alarmRinging)
+        {
+            stopAlarmRinging();
+            hideStopButton();
+        }
+
         stopTickThread();
 
         startedByIntent = false;
