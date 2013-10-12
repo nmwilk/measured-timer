@@ -88,7 +88,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
     private HueChooser hueChooser;
     private boolean alarmRinging;
-    private boolean startedByIntent;
+    private boolean deviceWasAsleep;
 
     private boolean spaceInList = true;
 
@@ -149,7 +149,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         notificationExDesc = getString(R.string.notification_exdesc);
 
         alarmRinging = false;
-        startedByIntent = false;
+        deviceWasAsleep = false;
 
         final Intent intent = getIntent();
         if (intent != null)
@@ -258,53 +258,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
         dial.stopGlowAnimation();
 
-        if (alarmRinging)
-        {
-            stopAlarmRinging();
-            hideStopButton();
-        }
-
-        stopTickThread();
-
-        startedByIntent = false;
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent)
-    {
-        super.onNewIntent(intent);
-
-        // called when activity is alive.
-        alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
-
-        final boolean deviceAsleep = intent.getBooleanExtra(INTENT_VAR_DEVICE_ASLEEP, false);
-
-        intent.removeExtra(INTENT_VAR_ALARM_RINGING);
-        intent.removeExtra(INTENT_VAR_DEVICE_ASLEEP);
-
-        startedByIntent = deviceAsleep;
-    }
-
-    @Override
-    public void onWindowFocusChanged(final boolean hasFocus)
-    {
-        super.onWindowFocusChanged(hasFocus);
-
-        if (hasFocus)
-        {
-            checkRemainingSpaceInList();
-            spareHandler.postDelayed(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    if (dial.isDisabled() == spaceInList)
-                    {
-                        dial.setDisabled(!spaceInList, true);
-                    }
-                }
-            }, 250);
-        }
+        deviceWasAsleep = false;
     }
 
     @Override
@@ -313,8 +267,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onResume();
 
         onColourSet(currentHue);
-
-        startTickThread();
 
         // if the alarm's ringing, the flag was either set in onNewIntent (if Activity alive) or onCreate.
         if (alarmRinging)
@@ -348,9 +300,48 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     }
 
     @Override
+    protected void onNewIntent(Intent intent)
+    {
+        super.onNewIntent(intent);
+
+        // called when activity is alive.
+        alarmRinging = intent.getBooleanExtra(INTENT_VAR_ALARM_RINGING, false);
+
+        deviceWasAsleep = intent.getBooleanExtra(INTENT_VAR_DEVICE_ASLEEP, false);
+
+        intent.removeExtra(INTENT_VAR_ALARM_RINGING);
+        intent.removeExtra(INTENT_VAR_DEVICE_ASLEEP);
+    }
+
+    @Override
+    public void onWindowFocusChanged(final boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus)
+        {
+            checkRemainingSpaceInList();
+            spareHandler.postDelayed(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (dial.isDisabled() == spaceInList)
+                    {
+                        dial.setDisabled(!spaceInList, true);
+                    }
+                }
+            }, 250);
+        }
+    }
+
+    @Override
     protected void onStart()
     {
         super.onStart();
+
+        startTickThread();
+
         EasyTracker.getInstance(this).activityStart(this);
     }
 
@@ -358,6 +349,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     protected void onStop()
     {
         super.onStop();
+        if (alarmRinging)
+        {
+            stopAlarmRinging();
+            hideStopButton();
+        }
+
+        stopTickThread();
+
         EasyTracker.getInstance(this).activityStop(this);
     }
 
@@ -440,7 +439,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
                 }
 
                 boolean shutdown = false;
-                if (alarmRinging && startedByIntent)
+                if (alarmRinging && deviceWasAsleep)
                 {
                     shutdown = true;
                 }
