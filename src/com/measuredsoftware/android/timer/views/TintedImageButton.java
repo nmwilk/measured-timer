@@ -2,7 +2,6 @@ package com.measuredsoftware.android.timer.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -26,8 +25,6 @@ public class TintedImageButton extends ImageButton
 
     private final ColorFilter filterDown;
     private final ColorFilter filterUp;
-
-    private boolean filterActive;
 
     public TintedImageButton(final Context context, final AttributeSet attrs)
     {
@@ -88,13 +85,6 @@ public class TintedImageButton extends ImageButton
     public void setSelected(boolean selected)
     {
         super.setSelected(selected);
-        filterActive = selected;
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas)
-    {
-        getDrawable().setColorFilter(filterActive ? filterDown : filterUp);
-        super.onDraw(canvas);
+        getDrawable().setColorFilter(selected ? filterDown : filterUp);
     }
 }
