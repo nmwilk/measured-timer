@@ -34,7 +34,7 @@ public class AlarmReceiver extends BroadcastReceiver
         alarmAlert.putExtra(TimerActivity.INTENT_VAR_DEVICE_ASLEEP, asleep);
         context.startActivity(alarmAlert);
 
-        final Intent playAlarm = new Intent(Alarms.ALARM_ALERT_ACTION);
+        final Intent playAlarm = new Intent(context, AlarmBuzzer.class);
         context.startService(playAlarm);
     }
 }

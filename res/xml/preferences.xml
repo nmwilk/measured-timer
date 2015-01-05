@@ -15,10 +15,10 @@
             android:summary="@string/use_notifications_desc"
             android:defaultValue="true" />
 
-    <CheckBoxPreference
-            android:key="@string/prefs_key_sendstats"
-            android:title="@string/send_anon_stats_title"
-            android:summary="@string/send_anon_stats_desc"
-            android:defaultValue="true" />
+    <!--<CheckBoxPreference-->
+            <!--android:key="@string/prefs_key_sendstats"-->
+            <!--android:title="@string/send_anon_stats_title"-->
+            <!--android:summary="@string/send_anon_stats_desc"-->
+            <!--android:defaultValue="true" />-->
 
 </PreferenceScreen>

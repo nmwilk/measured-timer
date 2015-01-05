@@ -23,8 +23,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.measuredsoftware.android.timer.data.EndTimes;
 import com.measuredsoftware.android.timer.data.EndTimes.Alarm;
 import com.measuredsoftware.android.timer.viewgroups.ContainerView;
@@ -72,7 +70,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private float currentHue;
     private int usageCount;
     private boolean showNotification;
-    private boolean sendStats;
 
     private ContainerView contentContainer;
     private TimerView dial;
@@ -197,7 +194,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     private void loadPrefsOptions()
     {
         showNotification = prefs.getBoolean(getResources().getString(R.string.prefs_key_usenotifications), true);
-        sendStats = prefs.getBoolean(getResources().getString(R.string.prefs_key_sendstats), true);
     }
 
     private void buildColourableList(final ViewGroup container)
@@ -341,8 +337,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onStart();
 
         startTickThread();
-
-        EasyTracker.getInstance(this).activityStart(this);
     }
 
     @Override
@@ -356,8 +350,6 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         }
 
         stopTickThread();
-
-        EasyTracker.getInstance(this).activityStop(this);
     }
 
     private void closeActiveHueChooser()
@@ -461,18 +453,11 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SHOW_PREFERENCES_RESULT_CODE)
         {
-            final boolean prevSendStats = sendStats;
-
             loadPrefsOptions();
 
             if (!showNotification)
             {
                 removeNotificationItem(null);
-            }
-
-            if (prevSendStats != sendStats)
-            {
-                GoogleAnalytics.getInstance(this).setAppOptOut(!sendStats);
             }
         }
     }
@@ -511,7 +496,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
 
             final SharedPreferences.Editor editor = prefs.edit();
             editor.putInt(PREFS_VAL_USAGECOUNT, usageCount);
-            editor.commit();
+            editor.apply();
         }
 
         updateAlarms();
@@ -551,7 +536,7 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
             removeNotificationItem(nm);
         }
 
-        stopService(new Intent(Alarms.ALARM_ALERT_ACTION));
+        stopService(new Intent(this, AlarmBuzzer.class));
         dial.setAlarmIsRinging(false);
 
         updateAlarms();
@@ -603,14 +588,14 @@ public class TimerActivity extends Activity implements TimerView.OnEventListener
     {
         final SharedPreferences.Editor editor = prefs.edit();
         editor.putFloat(pref, value);
-        editor.commit();
+        editor.apply();
     }
 
     private void writeToPrefs(final String pref, final String value)
     {
         final SharedPreferences.Editor editor = prefs.edit();
         editor.putString(pref, value);
-        editor.commit();
+        editor.apply();
     }
 
     private void startTickThread()
