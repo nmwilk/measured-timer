@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="cancel">cancel</string>
-    <string name="app_name">Measured Timer</string>
-    <string name="expanded_title">Alarm</string>
-    <string name="expanded_text">Tap to cancel</string>
-</resources>
